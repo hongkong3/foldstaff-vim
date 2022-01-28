@@ -14,7 +14,7 @@ I'm working on it...
 > > bbq?
 
 ```vim
-  code block
+  ec "code block"
 ```
 
   |What's the |Table is|tihs?|
