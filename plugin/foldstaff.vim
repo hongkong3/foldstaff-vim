@@ -5,7 +5,6 @@ scriptencoding utf-8
 " License:    MIT license
 " Filenames:  foldstaff.vim
 "             %/../../autoload/foldstaff.vim
-"             %/../../autoload/foldstaff9.vim
 " ========================================================================}}}1
 
 let s:n = expand('<sfile>:t:r')
