@@ -16,3 +16,9 @@ I'm working on it...
   code block
 ```
 
+  |What's the |Table ias|tihs?|
+  |-|-|-|
+  |A|B|C|
+  |1|2|3|
+
+
