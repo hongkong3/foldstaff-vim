@@ -44,11 +44,14 @@ strings  *em* **strong**
     Hidden messages.<br>
     The markdown doesn't work in tags.<br><br>
     Is it possible that <kbd style='color:red;font-size:3em'>style</kbd> are also enabled too?<br>
-    So tags work, but <code fg="#ff0000">attributes</code> don't...<br>
+    So tags work, but <code fg="#ff0000">attributes</code> don't...<br><br>
 </details>
+
+![](https://via.placeholder.com/480x60.png/e20/021?text=There+have+to+go+this+far+to+color+it...)  
 
 The badges are not available on GitHub...  
 <a target="_blank" href="https://shields.io">https://shields.io</a>  
 don't work `target="_blank"` :confused:  
 Emoji🍣 seems to be easier to input directly?  
 (If I can't see it, use image completion here?)  
+
