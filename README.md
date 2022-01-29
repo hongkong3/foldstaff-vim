@@ -51,3 +51,4 @@ The badges are not available on GitHub...
 <a target="_blank" href="https://shields.io">https://shields.io</a>  
 don't work `target="_blank"` :confused:  
 Emoji🍣 seems to be easier to input directly?  
+(If I can't see it, use image completion here?)  
