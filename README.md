@@ -24,7 +24,7 @@ I'm working on it...
   |R|P|g|
   |1|2|3|
 
-![GitHub Light](https://github.com/github-light.png#gh-dark-mode-only)
+![avatar?](https://avatars.githubusercontent.com/u/97036597?s=80&v=80)
 
 - [x] #777
 - [ ] where come marks?
@@ -32,3 +32,5 @@ I'm working on it...
 Does it also display in color? `#ff8020`  
 This is something else...  
 
+strings  *em* **strong**  
+***Isn't it possible to display in color?***
