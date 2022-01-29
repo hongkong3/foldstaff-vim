@@ -46,3 +46,6 @@ strings  *em* **strong**
     Is it possible that <kbd style='color:red;font-size:3em'>style</kbd> are also enabled too?<br>
     So tags work, but <code fg="#ff0000">attributes</code> don't...<br>
 </details>
+
+The badges are not available on GitHub...  
+<a target="_blank" href="https://shields.io">https://shields.io</a>  
