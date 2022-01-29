@@ -49,3 +49,4 @@ strings  *em* **strong**
 
 The badges are not available on GitHub...  
 <a target="_blank" href="https://shields.io">https://shields.io</a>  
+don't work `target="_blank"` X(
