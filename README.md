@@ -4,9 +4,9 @@ Folding utilities for Vim.
 I'm working on it...  
 
 
-## sandbox: excuse me for disturbing you...
+## 💎sandbox: excuse me for disturbing you...
 
-    space by code?
+    4space by code?
 
 + list
   - list
@@ -49,4 +49,5 @@ strings  *em* **strong**
 
 The badges are not available on GitHub...  
 <a target="_blank" href="https://shields.io">https://shields.io</a>  
-don't work `target="_blank"` X(
+don't work `target="_blank"` :confused:  
+Emoji🍣 seems to be easier to input directly?  
