@@ -60,7 +60,6 @@ Emoji🍣 seems to be easier to input directly?
 (If I can't see it, use image completion here?)  
 
 [junmp to?](#user-content-can-jump-here)  
-Can't jump links either. And...  
-
 <a href="#user-content-can-jump-here">Even plain A-Tags are dead...</a>  
+After the push, it worked fine!
 
