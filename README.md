@@ -18,8 +18,8 @@ I'm working on it...
 ```
 
   |What's the |Table is|tihs?|
-  |-|-|-|
-  |A|B|C|
+  |:--|:-:|--:|
+  |R|P|g|
   |1|2|3|
 
 ![GitHub Light](https://github.com/github-light.png#gh-dark-mode-only)
@@ -27,4 +27,5 @@ I'm working on it...
 - [x] #777
 - [ ] where come marks?
 
+cDoes it also display in color? `#ff8020`
 
