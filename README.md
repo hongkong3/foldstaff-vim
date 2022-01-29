@@ -33,7 +33,7 @@ I'm working on it...
 ----
 
 
-Does it also display in color? `#ff8020`  
+Does it also display in color? `#FF8020`  
 This is something else...  
 
 strings  *em* **strong**  
@@ -47,6 +47,10 @@ strings  *em* **strong**
     So tags work, but <code fg="#ff0000">attributes</code> don't...<br><br>
 </details>
 
+****
+
+### Can jump here?
+
 ![](https://via.placeholder.com/480x60.png/e20/021?text=There+have+to+go+this+far+to+color+it...)  
 
 The badges are not available on GitHub...  
@@ -54,4 +58,9 @@ The badges are not available on GitHub...
 don't work `target="_blank"` :confused:  
 Emoji🍣 seems to be easier to input directly?  
 (If I can't see it, use image completion here?)  
+
+[junmp to?](#user-content-can-jump-here)  
+Can't jump links either. And...  
+
+<a href="#user-content-can-jump-here">Even plain A-Tags are dead...</a>  
 
