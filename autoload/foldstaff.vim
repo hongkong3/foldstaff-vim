@@ -1,11 +1,10 @@
 scriptencoding utf-8
 " ========================================================================{{{1
-" Plugin:     foldstaff-vim
-" LasCahnge:  2022/01/22  v0.8
+" Plugin:     foldstaff
+" LasCahnge:  2022/02/02  v0.82
 " License:    MIT license
 " Filenames:  %/../../plugin/foldstaff.vim
 "             foldstaff.vim
-"             foldstaff9.vim
 " ========================================================================}}}1
 
 let s:t_cpo = &cpo | set cpo&vim
@@ -29,7 +28,6 @@ let s:{s:n}_default.fold = {}
 let s:{s:n}_default.fold.type = 'auto'
 let s:{s:n}_default.fold.match = []
 let s:{s:n}_default.fold.keyswitch = -1
-
 
 " running variables: -----------------------------------------------------{{{2
 " b:{s:n}_header = {
@@ -163,7 +161,6 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
     return tgt
   endfu
 
-
 " SUB: ==================================================================={{{1
 " ------------------------------------------------------------------------{{{2
 fu! s:show_opt(...) abort " ({options})
@@ -174,11 +171,11 @@ fu! s:show_opt(...) abort " ({options})
 
   let msg = [printf('%s: {', s:n)]
 
-  " ......................................................................{{{3
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
   fu! s:_attr(v) " (val) = 'string'
     return type(a:v)==1 ? printf('''%s''', a:v) : a:v
   endfu
-  " ......................................................................}}}3
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
 
   for ft in keys(opt)
     call add(msg, printf('%s[''%s'']: {', idt[0], ft))
@@ -339,7 +336,8 @@ fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
 
   let opt = deepcopy(s:{s:n}._.header) " read options
   for [k, v] in items(opt)
-    let opt[k] = s:get(s:{s:n}, printf('%s.header.%s', ft, k), v)
+    let vv = s:get(s:{s:n}, printf('%s.header.%s', ft, k), v)
+    if !s:is(vv, []) | let opt[k] = vv | endif
   endfor
 
   let cw = s:get(s:{s:n}, ft..'.header.width', s:get(s:{s:n}, '_.header.width'))
@@ -366,6 +364,7 @@ fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
     let prm.T = prm.s
   endif
   if len(opt.modify) | let txt = s:replace(txt, flattennew(opt.modify)) | endif
+  let txt = substitute(txt, '\v\%', "\x06", 'g')
 
   " ......................................................................{{{
   fu! s:_header_expr(v) " %{ ... %}  @nested support?
@@ -437,7 +436,7 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])
     \   printf('\v\C^(.*%s.*)\s*(%s.{-})$', a[0], a[1]),
     \ ]
 
-  " = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = {{{3
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
   fu! s:_insmrk(...) closure " (lnum, flg)
     let f = get(a:, 2)!=0 | let s = getline(a:1)
     let al = f ? prevnonblank(a:1) : nextnonblank(a:1)
@@ -460,7 +459,7 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])
 
     return row[0]..repeat(' ', len-strwidth(ff))..ff..mrk..row[1]
   endfu
-  " = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = }}}3
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
 
   let ff = reduce(map(range(4), {i-> stridx(getline(ml[i/2]), fmr[i%2])>=0}), {a,b-> a+b})>0
   if ff | for l in range(ml[0], ml[1]) " remove the marker
@@ -501,8 +500,8 @@ fu! {s:n}#_fold(...) abort " (['type'/lnum])  @fold_expr
         let c[1]+= strwidth(s)/8
       elseif s=~'\v^\s*[\}\]]|[\{\[\)\;]\s*$|^\s*(\#{2,})\s+\S'
         let c[0]+= 4
-      elseif s=~'\v^\s*([\#\=\-\*\+])(\s*\1){11,}\s*$'
-        let c[1]+= 16
+      elseif s=~'\v^\s*([\#\=\-\*\+])(\s*\1){7,}\s*$'
+        let c[1]+= 20
       endif
     endfor
     let ret = ['code', 'text'][index(c, max(c))]
@@ -541,8 +540,7 @@ endfu
   fu! s:fold_code(...) abort " ([lnum])  =  fold-expr result
     " at the last, simple is better, it seems...
 
-    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - {{{4
-    fu! s:_mk(...) closure " (lnum, foldLv) = foldLv as Marker
+    fu! s:_mk(...) closure " (lnum, foldLv) = foldLv as Marker - - - - - - {{{
       let s = getline(a:1) | let v = get(a:, 2)
       if !s:is_cmt(a:1) && s=~fmr[2] " markdown: ### header
         let v = '>'..strlen(matchstr(s, fmr[2]))
@@ -558,26 +556,25 @@ endfu
 
       if !s:is(v, a:2) | let ep[1] = v[1]-(v[0]=='<') | endif
       return v
-    endfu
-    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - {{{4
-    fu! s:_fv(...) " (lnum, [move= +1]) = foldLv
+    endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+
+    fu! s:_fv(...) " (lnum, [move= +1]) = foldLv - - - - - - - - - - - - - {{{
       let a = get(a:, 2)-0
       return foldlevel(a<0 ? prevnonblank(a:1-1) : nextnonblank(a:1+(a>0 ? 1 : 0)))
-    endfu
-    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - {{{4
-    fu! s:_iv(...) " (lnum, [move= +1]) = indentLv
+    endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+
+    fu! s:_iv(...) " (lnum, [move= +1]) = indentLv - - - - - - - - - - - - {{{
       let a = get(a:, 2)-0
       return indent(a<0 ? prevnonblank(a:1-1) : nextnonblank(a:1+(a>0 ? 1 : 0)))/shiftwidth()
-    endfu
-    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - {{{4
-    fu! s:_rv(...) " (lnum) = resume foldLv?
+    endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+
+    fu! s:_rv(...) " (lnum) = resume foldLv? - - - - - - - - - - - - - - - {{{
       let mk = s:_mk(a:1-1, s:_fv(a:1-2)) " # check end-marker
       if mk=~'\v\<\d+' | return mk[1:]-1 | endif
       let pf = s:_fv(a:1, -1)
       let pi = s:_iv(a:1, -1)-s:_iv(nextnonblank(a:1))
       return pi>0 ? max([0, pf-pi]) : pf
-    endfu
-    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }}}4
+    endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
 
     let cl = get(a:, 1, v:lnum)-0 | if cl==0 | let cl = v:lnum | endif
     let ep = get(b:{s:n}_fold, 'expr', [0])
@@ -657,6 +654,7 @@ endfu
     if type(p)==1 | let ep[1] = p[1]-(p[0]=='<' ? 1 : 0) | endif
     return p
   endfu
+
   " = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = {{{3
   fu! s:fold_match(...) abort " ([lnum])  =  fold-expr result
     let pat = s:get(s:{s:n}, &ft..'.fold.match', s:get(s:{s:n}, '_.fold.match', []))
@@ -683,4 +681,4 @@ endfu
 if !exists(printf('s:%s._', s:n)) | call {s:n}#_option() | endif " initialize
 
 let &cpo = s:t_cpo | unlet s:t_cpo
-" vim:set ft=vim fenc=utf-8 norl:                             Author: HongKong
+" vim:set ft=vim fenc=utf-8 fml=3 norl:                       Author: HongKong

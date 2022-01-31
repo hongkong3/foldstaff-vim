@@ -1,7 +1,7 @@
 scriptencoding utf-8
 " ========================================================================{{{1
-" Plugin:     foldstaff-vim
-" LastChange: 2022/01/28  v0.8
+" Plugin:     foldstaff
+" LastChange: 2022/02/02  v0.82
 " License:    MIT license
 " Filenames:  foldstaff.vim
 "             %/../../autoload/foldstaff.vim
@@ -9,32 +9,34 @@ scriptencoding utf-8
 
 let s:n = expand('<sfile>:t:r')
 
-if get(g:, 'loaded_'..s:n)>=0.08 || !has('folding')
+if get(g:, 'loaded_'..s:n)>=0.082 || !has('folding')
   finish
 endif
-let g:loaded_{s:n} = 0.08   *0
+let g:loaded_{s:n} = 0.082
 let s:t_cpo = &cpo | set cpo&vim
 
 
 " Example of Use: --------------------------------------------------------{{{2
-  if get(g:, 'enable_'..s:n)>0      || 1 " # quick start
+  if get(g:, 'enable_'..s:n)>0 " # quick start
     " # fold-text
     set foldtext=foldstaff#header()
 
     " # option exsample
-    autocmd VimEnter * ++once
-      \ call foldstaff#option(
-      \   #{help: #{
+    let g:foldstaff = {
+      \   'help': #{
       \     header: #{
       \       format: [
-        \         '%{repeat("  ", %V-1)..["", "+ ", "- ", "  "][min([3, %V-1])]%}%t %<%{"-."[%V>1]%} %>(%l)',
-      \      ],
+      \         '%{repeat("  ", %V-1)..["", "+ ", "- ", "  "][min([3, %V-1])]%}%t %<%{"-."[%V>1]%} %>(%l)',
+      \       ],
       \       modify: [
       \         ['\v\S\zs%(\s*([\*\|])\S.{-}\S\1)+$|\s*\~$', ''],
       \       ],
-      \     }
-      \   }}
-      \ )
+      \     },
+      \     fold: #{
+      \       type: "text",
+      \     },
+      \   },
+      \ }
 
     " # option-check (& Yank now value)
     " let @* = foldstaff#option(0, 2)
@@ -67,24 +69,6 @@ let s:t_cpo = &cpo | set cpo&vim
     augroup END
     " set viewoptions viewdir  " # related options
   endif
-
-
-  " # option-set
-  " call foldstaff#option({
-  "   \   'vim': #{
-  "   \     header: #{
-  "   \       width: '+0',
-  "   \     },
-  "   \     fold: #{
-  "   \       type: 'auto',
-  "   \     },
-  "   \     marker: #{
-  "   \       fill: #{
-  "   \         0: '-',
-  "   \       },
-  "   \     },
-  "   \   },
-  "   \ }, 0)
 
 
 " FUNCTION: =============================================================={{{1
@@ -136,7 +120,7 @@ fu! s:_option_cmd(...) " can be omitted Attribute
     let @h = {s:n}#option(0,2) | return 0
   elseif v!~'\v\w+.{-}\=\s*\S' " has EQUAL?
     call s:_msg(printf('%s#option: arguments wrang.', s:n),
-      \ 'REQUIRE: filetype.function.attribute = {value}', 'ToDo')
+      \ 'REQUIRE: filetype.method.attribute = value', 'ToDo')
     return -1
   endif
 
@@ -173,6 +157,7 @@ endfu
   let s:_kns = [
     \ 'header.format', 'header.width', 'header.modify', 'header.min', 'header.ellipsis',
     \ 'marker.fill', 'marker.width', 'fold.type', 'fold.match', 'fold.keyswitch']
+
 " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
 
 " COMMAND: ==============================================================={{{1

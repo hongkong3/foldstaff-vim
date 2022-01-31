@@ -1,0 +1,631 @@
+*foldstaff.txt*            For Vim version 8.2.       Last change: 2022 Feb 02
+              ____________________________________________________~
+             /    _______________________________________________/~
+            /    ________//  /__ /  /  ___/  /____ ___/  __/  __/~
+           _\____\/ __  \/  / __`  /\_  \   __/ __`  /  __   __/~
+          _\____\/ /_/  /  / /_/  /__/  /  /_/ /_/  /  / /  /~
+         /____/  \_____/__/\__,__/_____/\___/\__,__/__/ /__/  vim~
+
+
+[目次]~
+■はじめに:                       |foldstaff-introduction|
+  プラグイン情報                    |foldstaff-information|
+
+■各機能の使い方:                 |foldstaff-usage|
+  foldstaff-header                  |foldstaff-header|
+  foldstaff-marker                  |foldstaff-marker|
+  foldstaff-fold                    |foldstaff-fold|
+  foldstaff-refresh                 |foldstaff-refresh|
+  foldstaff-option                  |foldstaff-option|
+
+■オプション設定の内容:           |foldstaff-option-detail|
+  header用オプション                |foldstaff-header-option|
+  header-formatの書式               |foldstaff-header-format|
+  marker用オプション                |foldstaff-marker-option|
+  fold用オプション                  |foldstaff-fold-option|
+
+■更新履歴:                       |foldstaff-changelog|
+
+~
+※ご注意※
+    本ヘルプの内容は自動翻訳を元に作成されています。
+    摩訶不思議な表現あるかもですがご容赦下さい。
+
+==============================================================================
+
+■はじめに:~
+                                                      *foldstaff-introduction*
+|foldstaff| は、Vimエディタの折り畳み機能(|Folding|)にまつわるプラグインです。
+実在の人物・団体・名称等とは一切関係ございません。
+
+折り畳み機能については、|usr_28.txt| や |fold.txt| をご覧ください。
+
+設定を追加する事でファイルタイプ毎に各種設定を切り替えれるのが特徴です。
+
+~
+動作環境~
+Vimエディタが |+folding| 機能付きでコンパイルされている必要があります。
+以下のExコマンドか、`:version` で確認可能です。 (v8.2以降?) >
+	:echo has('folding')
+
+他にも何か必要かもですが、にわかVimmerなのでわかりません... m(_ _)m
+
+
+本プラグインが提供する機能~
+
++ |foldstaff-header|
+    'foldtext'用。折り畳み時に表示されるテキストを生成します。
+    書式設定を追加すれば、ファイルタイプ毎(|filetype|)・折り畳みのレベル毎
+	(|foldlevel|)に異なる内容で生成されたテキストも表示可能です。
+
++ |foldstaff-marker|
+	折り畳み用マーカー(|fold-marker|)を右端位置揃えで設置します。
+	基本それだけです。
+
++ |foldstaff-fold|
+   	|fold-expr|方式の折り畳みで使用する関数('foldexpr')です。 
+	複数の手法で折り畳みを行います。
+
+- |foldstaff-option|
+	本プラグインのオプション設定用の関数です。
+	一般的なプラグイン同様、グローバル関数での設定も可能ですが、
+	この関数から設定する事で変更の確認や反映が容易になります。
+
+------------------------------------------------------------------------------
+
+プラグイン情報                                         *foldstaff-information*
+
+プラグイン名:   foldstaff-vim
+
+バージョン:  	0.82
+
+ライセンス:  	MIT License.
+
+    Copyright (c) 2022 HongKong
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+~
+最新版:   	https://github.com/hongkong3/foldstaff-vim
+
+~
+Enjoy your Vim life, with Folding :)
+
+==============================================================================
+
+■各機能の使い方:~
+                                                             *foldstaff-usage*
+オプション設定はひとまとめにしてますが、各機能はそれぞれ独立してます。
+すべてまとめて使用する必要はございません。
+
+お好みに合わせてご利用ください。
+
+
+クイックスタート~
+下記を `vimrc` 内に記述して、Vimを起動します。 >
+    let g:enable_foldstaff = 1
+<
+キーマップ `zf` と `zF` が |foldstaff-marker| に割り当てられます。
+|foldstaff-header| と |foldstaff-fold| が有効化します。
+
+Note: 折り畳みの復元用に |:mkview| と |:loadview| を |autocmd| から呼び出してます。
+何か問題が発生する場合は、下記ファイルの内容を編集してください。
+`(/plugin/foldstaff.vim)`
+
+------------------------------------------------------------------------------
+
+foldstaff-header                                            *foldstaff-header*
+
+これは 'foldtext' 用の機能です。
+書式設定を元に折り畳み時に表示されるテキストを生成します。
+
+折り畳みの開始行(|foldstart|)から最初の、記号以外の文字がある行の内容を
+ベーステキストとして取得します。(記号のみ＆空白の行は無視します)
+
+Note:   ベーステキストの部分が変更されても、即座に折り畳み時のテキストに
+        反映はされません。
+        以下のようなタイミングで更新されます:
+        - バッファ全体の行数が変更された時
+        - ウィンドウサイズが変更された時
+        - |foldstaff#option()|が実行された時
+
+基本的にこの機能は、コールバック関数としてVimから呼び出されて使用されます。
+使い方よりもオプション設定の内容の方が重要になります。
+オプションの内容はコチラ -> |foldstaff-header-format|, |foldstaff-header-option|
+~
+                                                      *foldstaff-header-usage*
+機能の有効化: ~
+    :set foldtext=foldstaff#header()
+
+                                                            *:FoldstaffHeader*
+コマンド: ~
+    :FoldstaffHeader {foldlevel}, {"filetype"}
+
+        カーソル行が折り畳まれた場合のテキストをテスト生成して表示します。
+
+        {foldlevel} には1以上の数値を指定します。
+        {"filetype"} にはファイルタイプ('filetype')を文字列で指定します。
+        省略時は現在の内容に沿って生成します。
+
+        表示されたテキストはレジスタ{h}にヤンクされます。
+        ノーマルモードで `"hp` と入力すると貼り付けできます。
+
+                                                          *foldstaff#header()*
+ファンクション: ~
+    foldstaff#header({lnum}, {foldlevel}, {filetype}) = "folded-text"
+
+        コマンド版とほぼ同じです。
+        表示されたテキストを戻り値として返します。
+
+------------------------------------------------------------------------------
+
+foldstaff-marker                                            *foldstaff-marker*
+
+折り畳み用マーカー(|fold-marker|)を右端位置揃えで設置する機能です。
+    オプションの内容はコチラ -> |foldstaff-marker-option|
+
+折り畳みレベル(|foldlevel|)ごとに余白を埋める文字を指定可能です。
+余白文字の指定に制限は特にありません、ご自由にどうぞ。 >
+  " ( T T)/(^ ^ )`( - -)c(>_< )9_( T T)/(^ ^ )`( - -)c(>_< )9_( T T)/(^ ^ ){{{
+<
+                                                      *foldstaff-marker-usage*
+この機能はキーマップ(|key-maping|)に登録して使う前提の造りです。
+使用した場合、以下のように動作します:
+
+* ノーマルモードで使用すると、折り畳みマーカー(|fold-marker|)をカーソル行の
+  末尾に追加します。
+  - 既にマーカーがある場合、それを削除します。
+  - キーマップは2種類あり、開始マーカー({{{)と終了マーカー(}}})用です。
+    - 開始マーカーは下の行と、終了マーカーは上の行とインデントを合わせます。 >
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+
+* カウント指定(<count>)付きで実行した場合、
+  その折り畳みレベル(|foldlevel|)のマーカーを設置します。
+  - 既にマーカーがある場合、指定レベルのマーカーに置き換えます。 >
+  " ======================================================================{{{1
+
+* ビジュアルモード(複数行選択)で実行した場合、先頭の行の末尾に開始マーカー、
+  最後の行の末尾に終了マーカーを設置します。 >
+  for i in range(10) " - - - - - - - - - - - - - - - - - - - - - - - - - - {{{
+    echo i
+  endfor " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }}}
+<
+
+                        *<Plug>(foldstaff-marker)* *<Plug>(foldstaff-endmarker)*
+機能の有効化:~
+    :map zf <Plug>(foldstaff-marker)
+    :map zF <Plug>(foldstaff-endmarker)
+
+        キーマップ(|key-mapping|)の設定例です。
+        例では `zf`, `zF`に設定してますが、実際に使用するキーはお好みでどうぞ。
+ 
+------------------------------------------------------------------------------
+
+foldstaff-fold                                                *foldstaff-fold*
+
+'foldexpr'に設定する為の、折り畳みを作成する関数(|fold-expr|)。
+バッファの内容に応じて折り畳みを行う機能です。
+    オプションの内容はコチラ -> |foldstaff-fold-option|
+
+以下のような折り畳みタイプがあります:
+    - type: auto~
+      折り畳みタイプの既定値です。
+      バッファの内容をテキトーに判別して、
+      "code" か "text" のタイプに振り分けます。
+
+    - type: code~
+      コーディング系のファイル用タイプです。
+      インデント方式の折り畳み(|fold-indent|)と似た挙動ですが、
+      VS-Code風に直前の親階層の行へと畳み込みます。
+
+      折り畳みの最少行数は |foldminlines| で変更可能です。
+
+      また、以下の要素を使って任意に折り畳みを作成できます:
+        + Vimの折り畳みマーカー(|fold-marker|)
+          ただし、折り畳みレベル付きのマーカーとは相性悪いです
+        + |Markdown|のヘッダー書式  `## TEXT`
+        + `#region` と `#endregion` の文字列
+
+    - type: text~
+      ほぼVimヘルプ専用です。
+      判りやすい区切りが入った文章なら使えなくも無いかもです。
+
+      バッファの内容を以下の要素で区切って、それぞれを別個に折り畳みます。
+        1. `=` か `#` 又は `/` のみで構成された行
+        2. `-` か `+` 又は `*` のみで構成された行
+        3. 2行以上の空白行の後の段落
+
+      最終的に全て折り畳むと、全体で目次やアウトラインのようになります。
+      
+    - type: match~
+      予め設定されたパターンを使って、各行毎にパターンマッチングを行います。
+      ファイルタイプ専用に1から関数組むよりは楽かも？程度です。
+
+
+                                      *foldstaff-fold-usage*  *foldstaff#fold()*
+機能の有効化:~
+    :set |foldmethod|=expr |foldexpr|=foldstaff#fold()
+
+        一応これで有効になるはずです。
+        但し、|modeline|, |ftplugin|, |autocmd| 等で設定を上書きされる事も多いです。
+
+        そのような場合は下記コマンドの使用や個別に対処を構築して下さい。
+
+                                                              *:FoldstaffFold*
+コマンド:~
+    :FoldstaffFold {fold-type}
+
+        カレントバッファに対して{fold-type}で指定された折り畳みを実行します。
+        {fold-type}には `auto`, `code`, `text`, `match` のいずれかを指定します。
+        未指定時は `auto` として実行します。
+
+------------------------------------------------------------------------------
+
+foldstaff-refresh                                          *foldstaff-refresh*
+
+|foldstaff-header|による折り畳みテキストと、
+|foldstaff-fold|による折り畳みの状態を更新します。
+引数ナシで |foldstaff-option| を実行してるだけです。
+
+~
+コマンド:~
+    :FoldstaffRefresh
+
+ファンクション:~
+    :call foldstaff#refresh()
+
+------------------------------------------------------------------------------
+
+foldstaff-option                                            *foldstaff-option*
+
+本プラグインのオプション設定を扱うための専用機能です。
+オプション設定は3通りの方法で行えます:
+
+1. |vimrc| 内で `g:foldstaff` に変更内容を設定してVim起動。 (Vim的に一般的なの)
+2. `g:foldstaff` に変更を加えて |foldstaff#option()| を呼び出す。
+3. |foldstaff#option()| に引数として変更内容を渡して実行。
+
+主に、結果を確認しながら変更を試すための機能です。
+
+
+                                  *foldstaff-option-usage*  *foldstaff#option()*
+ファンクション:~
+    foldstaff#option({options}, {flag=0})  =  {options}
+
+        引数ナシで実行した場合、グローバル変数 `g:foldstaff` の内容を読み取って
+        既存の設定に上書きします。
+
+        Note:   戻り値として変更したオプション自体の辞書型変数を返します
+
+        {options} には後述の辞書型変数の内容に沿って、設定値を渡します。
+         -> |foldstaff-option-variable|
+        階層構造の辞書変数です: {filetype}.{method}.{attribute} : {value} >
+        ex) {'vim': #{header: #{width: '+0', ellipsis: '~ ',}}}
+<        一度に複数の項目を設定できますが入力が面倒です...
+
+        {flag} には数値で動作を指定します:
+         0      既存の設定に変更を上書きします              [既定値]
+         1      すべての設定を初期化した後、変更を加えます
+        +2      変更後、現在の設定内容を表示します
+
+        Note:   表示は `:echom` で行います、`:message` で後から確認も可能です
+                また、以下のようにすると確認だけを行えます >
+                  :call foldstaff#option(0, 2)
+<
+                                                            *:FoldstaffOption*
+コマンド:~
+    :FoldstaffOption {filetype}.{method}.{attribute} = {value}
+
+         上記関数の省力コマンド版です。
+         引数ナシで実行すると、現在の設定値を表示します。
+         また、レジスタ `"h` に現在のオプション値の辞書変数をヤンクします。
+         
+         引数 {filetype}・{method} は省略可能にしてます。
+         設定変更で必須なのは "{attribute} = {value}" の部分です。
+         1項目ずつしか変更できないのが難点です。
+>
+         :FoldstaffOption help.fold.type = 'text'
+         " # foldstaff.help.fold.type = 'text'
+
+         :FoldstaffOption header[width] = 100
+         " # foldstaff = {'_': {'header': {'width': 100}}}
+
+         :FoldstaffOption FILL.0 = www_
+         " # foldstaff._.marker.fill[0] = 'www_'
+
+         :FoldstaffOption vim.Modify = [['\v\{s:n\}', {_-> expand('%:t:r')}]]
+
+
+
+オプション設定用の辞書型変数の全容:~
+                               *foldstaff-variable*  *foldstaff-option-variable*
+"_" は基本ファイルタイプです。
+現在のファイルタイプに個別の設定値が存在しない場合、
+このタイプの設定値が適用されます。 >
+
+    [g:]foldstaff = {
+        "_" = #{                            " filetype [basic]
+            header = #{                     " @ foldstaff-header
+                format = [                  "   formatting text(s)
+                    '%i%t %<%>%{repeat("[", %v)%}%L]',
+                ],
+                width = '+0',               "   max-length of folded text
+                min = 8,                    "   min-length of base-text
+                ellipsis = '~',             "   symbols when base-text omitted
+                modify = [],                "   substitution-list to base-text
+            },
+            marker = #{                     " @ foldstaff-marker
+                fill = [                    "   padding strings list
+                    '- ',                   "     for non-level
+                    '=', '-', '.',          "     for each foldlevel
+                ],
+                width = 0,                  "   length of fold marker
+            },
+            fold = #{                       " @ foldstaff-fold
+                type = 'auto',              "   default fold-type
+                keyswitch = -1,             "   za zo zc key-maps switch flag
+                match = [],                 "   for fold-type: "match"
+            },
+        },
+    " # ファイルタイプごとに上記同様の項目を追加設定可能です
+        "vim" = {
+            ...
+        },
+        "help" = {
+            ...
+        }, ...
+    }
+
+Note: 実際に参照するオプション値はスクリプトローカル変数として保持してます。
+      変更適用後、`g:foldstaff` は廃棄(|:unlet|)可能です。
+
+==============================================================================
+
+■オプション設定の内容:~
+    					                             *foldstaff-option-detail*
+この項では各オプションの詳細について記載しています。
+オプション設定自体の方法については |foldstaff-option| をご覧ください。
+
+
+ファイルタイプについて                             *foldstaff-option-filetype*
+
+"_"                 基本ファイルタイプです。
+                    現在のファイルタイプに個別の設定値が存在しない場合、
+                    このタイプの設定値が適用されます。
+
+"vim", "help",.etc  任意のファイルタイプ(|filetype|)を追加可能です。
+                    追加したファイルタイプ名は辞書型変数のキー名として、
+                    `:set filetype?` で表示される値と直接判定されます。
+                    つまり、大文字小文字は区別されます。 ~
+
+                    ファイル名での判定ではないので、バッファのみの対象にも
+                    個別の設定を設定可能です。
+                    反面、ファイルタイプ未定の場合は個別設定を適用出来ません。
+
+------------------------------------------------------------------------------
+
+header用オプション                                   *foldstaff-header-option*
+~
+*foldstaff-header-width*     `=   '+0'`
+    |foldstaff-header| で生成する折り畳み用テキストの長さを指定します。
+    
+    base-textを省略したり余白を文字で埋めたりして、極力この長さのテキストを
+    生成するようにしてます。
+    ただし、ウィンドウの表示幅がこの長さより小さい場合はソチラに合わせます。
+
+    値は数値か文字列で指定します。
+    数値で指定した場合、その数値の絶対値指定となります。
+    文字列で指定した場合、'textwidth'からの相対値指定となります。
+
+    但し、指定値が短すぎる(12未満)場合や、相対指定で'textwidth'==0 な場合など
+    Vim既定値の 78 になったりします。
+
+    Note: 常にウィンドウ端まで埋めたい場合、999999等の値を指定して下さい。
+
+~
+*foldstaff-header-min*       `=   8`
+    |fodlstaff-header| で生成するテキストが |foldstaff-header-width| に対して
+    長過ぎる場合、base-text を省略して長さを合わせようとします。
+    その際の base-text の長さの最小値の指定です。
+
+    この長さと、 |foldstaff-header-ellipsis| + |foldstaff-header-format| の
+    文字数の合計が生成されるテキストの最小構成となります。
+
+    オーバーする時はオーバーします...
+
+~
+*foldstaff-header-ellipsis*  `=   '~'`
+    上記の base-text が省略されるケースで、省略した事を示すために追加される
+    文字列の指定です。省略が発生しなかった場合は表示されません。
+    特に文字数・文字種の制限は設けていません。 >
+        :FoldstaffOption ellipsis = '(ry'
+
+~
+*foldstaff-header-modify* = [[{pat}, {sub}],..]
+    base-text に対する置換パターンの設定です。
+    [{pat}, {sub}] の各セットを、直接 |substitute()| 関数で使用します。
+
+    [{pat}, {sub}] のセット数は無制限です、LIST内の並び順で置換を実行します。
+
+    |substitute()| は {flags}="g" の状態で実行されます。"g"を無効化したい場合、
+    {pat} の先頭に "\s" か "\o" を追加して下さい。 >
+        :FoldstaffOption vim modify.0 = ['\s\vfu%[nction]>\!?', '->']
+
+------------------------------------------------------------------------------
+
+header-formatの書式                                  *foldstaff-header-format*
+
+~
+foldstaff-header-format `= ['%i%t %<%>%{repeat("[", %v)%}%L]']`
+
+    各折り畳みレベルに対応する整形書式を、LISTのアイテムとして指定できます。
+    整形書式の数が折り畳みレベルに満たない場合、最後の整形書式が使用されます。
+
+    各書式は、通常のテキストの中に"%"で始まる置換指定が混在する|printf()|関数
+    で指定するテキストのような形式です。  (置き換える内容は全く別物です)
+    "%"自身を表示したい場合は "%%" と記述します。
+
+    Note: "%04e"のような数値指定を含む記述には対応していません。
+
+    "%"から始まる各置換指定と、置換後の内容の対応については以下の通りです:
+
+    item        contents ~
+    *%t*          折り畳み開始行から最初の、記号以外の文字を含む行のテキスト。
+                行頭・行末の空白は取り除かれます。
+                その後|foldstaff-header-modify|による置換処理が施されます。
+
+    *%<* ... *%>*   置換後のテキストが|foldstaff-header-width|の指定より短い場合、
+                "%< ... %>"の中にある文字列を繰り返して不足文字数を補います。
+
+                これを整形書式に含める事で右端が揃ったテキストを生成できます。
+                中に文字を含まない場合は半角スペースを使用します。  `"%<%>"`
+                たぶん全角文字にも対応してます。 >
+                    "%<.。.:*・゜☆%>"
+
+<    *%{* ... *%}*   内部の文字列を式として評価し、その結果に置き換えます。
+                Note: 各置換指定の置き換え順は、"%t" と "%<%>" が最後、
+                      これはその直前に置き換えられます。
+                      つまり、その他の置換指定を式の引数として扱えます。 >
+                    "%{repeat('vi', %v)%}m"
+
+<    *%s*          折り畳み開始行(|foldstart|)の行番号
+    *%S*          折り畳み開始行の行番号 [右寄せ空白埋めで桁揃え]
+
+    *%e*          折り畳み最終行(|foldend|)の行番号
+    *%E*          折り畳み最終行の行番号 [桁揃え]
+
+    *%l*          折り畳まれた行数 (|foldend| - |foldstart| + 1)
+    *%L*          折り畳まれた行数 [桁揃え]
+
+    *%p*          バッファ内での折り畳み開始行の位置のパーセンテージ [0 ～ 100]
+    *%P*              同上 ["  0.0" ～ "100.0" 表記]
+
+    *%v*          現在の閉じられた折り畳みレベル(|foldlevel|) (1開始)
+    *%V*          最大折り畳みレベル (開閉状態は無視)
+
+    *%i*          折り畳み開始行のインデント [半角スペース展開済み]
+                ("%t"のテキストの行のインデントではありません)
+
+    *%I*          折り畳み開始行のインデントレベル (|indent()| / |shiftwidth()|)
+
+    *%T*          "%t"のテキスト取得行の行番号
+
+    *%d*          閉じた折り畳みのレベルを表すダッシュ(|folddashes|) ["-"]
+
+    *%D*          'diff'による折り畳みかどうかの判定用？ [0 or 1]
+
+------------------------------------------------------------------------------
+
+marker用オプション                                   *foldstaff-marker-option*
+~
+*foldstaff-marker-fill*      `=   ['- ', '=','-','.']`
+    |foldstaff-marker| で右端揃えの 'foldmarker' を設置する際の、
+    右端までの余白を埋める文字列の指定です。
+
+    LIST内の最初の文字列は、折り畳みレベル未指定時に使用されます。
+    以降、各折り畳みレベル(<count>)指定時に使用される文字列となります。
+    (レベルがLIST内の文字列の個数を超える場合、最後の文字列を使い回します)
+
+    個々の文字列の文字数・文字種に特に制限はありませんが、コメント記号
+    ('commentstring')やマーカー用記号('foldmarker')と被った場合、
+    バッファ内の構文や折り畳み機能で障害が発生する可能性があります。
+
+~
+*foldstaff-marker-width*     `=   0`
+    |foldstaff-marker| の"右端"の位置の指定です。
+
+    基本的に |foldstaff-header-width| と同様の指定方式です。
+    但し数値 0 を指定した場合、|foldstaff-header-width| の値を参照します。
+    
+    "+0" "-6" "+2"              文字列、'textwidth' からの相対値指定
+    36 64 78 100                数値、(半角)文字数分の絶対値指定
+    0                           数値 0、|foldstaff-header-width| と同値
+  
+------------------------------------------------------------------------------
+
+fold用オプション                                       *foldstaff-fold-option*
+~
+*foldstaff-fold-type*        `=   'auto'`   [auto/code/text/match]
+    |foldstaff-fold|で実行する折り畳みタイプの指定です。
+    各折り畳みタイプの詳細については |foldstaff-fold| をご覧ください。
+
+    ここでは要約だけ...
+        "auto"      テキトーにバッファ判別して "code" か "text" に丸投げ
+        "code"      インデントでVS-Code風に折り畳み、マーカー等もサポート
+        "text"      全体を区切り線で切り分けて別個に折り畳み
+        "match"     設定されたマッチパターンで各行を判定
+                
+    実質2種類だけです。
+    "match"タイプは予め|foldstaff-fold-match|が設定されてないと実行出来ません。
+
+~
+*foldstaff-fold-keyswitch*   `=   -1`       [0/1/-1]
+    キーマップ (|zo|, |zc|, |za|) と (|zO|, |zC|, |zA|) をまとめて入れ替えます。
+
+    fold-type="text"による折り畳みの場合、見た目は1段階なのに実際は
+    多重になった折り畳みが生成されるという構造的欠陥があります。
+    複数回の開閉操作が必要だったりで面倒臭いので、その補填としての機能です。
+
+    設定値次第で前述のキーマップ入れ替えを行います。
+         1          常に入れ替え
+         0          入れ替えない
+        -1          type="text" が実行された時だけ入れ替え
+
+    そもそも |foldstaff-fold| 自体が無効なら入れ替えも行われません。
+
+~
+*foldstaff-fold-match* = [[{ret}, {pat1}, {pat2},..],..]
+    fold-type="match" で使用するマッチングパターンの設定です。
+    1つの{pat}と1つまたは複数の{pat}で構成されるLISTを各マッチングパターン
+    として、複数個のマッチングパターンを登録できます。
+
+    {ret}は |fold-expr| としての戻り値の指定です。
+    {pat}には各行との判定を行うパターン(|pattern|)を指定します。
+
+    すべての{pat}がマッチした場合に{ret}の値を返す。という仕組みです。
+    すべてのマッチングパターンに適合しなかった場合は "=" を返します。
+
+    {pat}を2つ以上指定した場合、現在の判定対象行の周囲の行とも判定を行います。
+    
+    各行と{pat}との対応としてはこんな感じです:   `lnum = 現在の判定対象の行` >
+        {pat}*1     [{ret}, {lnum}]
+        {pat}*2     [{ret}, {lnum-1}, {lnum}]
+        {pat}*3     [{ret}, {lnum-1}, {lnum}, {lnum+1}]
+        {pat}*4     [{ret}, {lnum-2}, {lnum-1}, {lnum}, {lnum+1}]
+        {pat}*5     [{ret}, {lnum-2}, {lnum-1}, {lnum}, {lnum+1}, {lnum+2}]
+        {pat}*...   [{ret}, ........]
+<    {pat}が空文字('')の場合、その行との判定はマッチした扱いになります。
+
+    見ての通り普通に重い処理です...
+
+==============================================================================
+
+■更新履歴:~
+                                                         *foldstaff-changelog*
+0.80:
+- Initial upload, but core only
+- GitHub studying...
+
+0.82:
+- Write help
+- Minor bug fixes
+- ヘルプ日本語版追加、日本語ヘルプ書かれない訳が解った気がした...
+
+==============================================================================
+ vim:set tw=78 ft=help norl:                                  Author: HongKong

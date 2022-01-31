@@ -1,0 +1,631 @@
+*foldstaff.txt*            For Vim version 8.2.       Last change: 2022 Feb 02
+              ____________________________________________________~
+             /    _______________________________________________/~
+            /    ________//  /__ /  /  ___/  /____ ___/  __/  __/~
+           _\____\/ __  \/  / __`  /\_  \   __/ __`  /  __   __/~
+          _\____\/ /_/  /  / /_/  /__/  /  /_/ /_/  /  / /  /~
+         /____/  \_____/__/\__,__/_____/\___/\__,__/__/ /__/  vim~
+
+                
+CONTENTS
+INTRODUCTION                      |foldstaff-introduction|
+  Plugin Information                |foldstaff-information|
+
+USAGE                             |foldstaff-usage|
+  foldstaff-header                  |foldstaff-header|
+  foldstaff-marker                  |foldstaff-marker|
+  foldstaff-fold                    |foldstaff-fold|
+  foldstaff-refresh                 |foldstaff-refresh|
+  foldstaff-option                  |foldstaff-option|
+
+OPTION                            |foldstaff-option-detail|
+  header-options                    |foldstaff-header-option|
+  header-option-format              |foldstaff-header-format|
+  marker-options                    |foldstaff-marker-option|
+  fold-options                      |foldstaff-fold-option|
+
+CHANGELOG                         |foldstaff-changelog|
+
+~
+CAUTION
+    This help has been prepared baded on automatic translation.
+    Please forgive me if there are some strange sentences...
+
+==============================================================================
+
+INTRODUCTION                                          *foldstaff-introduction*
+
+"foldstaff" is utilities for Folding, as Vim-plugin.
+About Folding, see |usr_28.txt| or |fold.txt|...
+
+The settings can be switched for each |filetype|, by adding options.
+
+REQUIRE
+"Folding" is require the Vim is compiled with |+folding| feature.
+You can check this by executing the following command. (8.2 later?) >
+    :echo has('folding')
+There may be something else you need, but I'm newbie by Vim so I am not sure.
+
+
+This provides the bellow utilities:
+
++ |foldstaff-header|
+    For 'foldtext'. Generates the display Text of closed Folding.
+    If by adding format-text, you can set the formatting for
+    each |filetype| and each |foldlevel|.
+
++ |foldstaff-marker|
+    Set the |fold-marker|, with right-side aligned.
+    That is almot all there is to it.
+
++ |foldstaff-fold|
+    Folding method for 'foldexpr', when the |fold-expr|.
+    This has some folding types.
+
+- |foldstaff-option|
+    This is a function for option setting, for above functions.
+    Although it is possible to set global-variables[g:] as in general plugins,
+    this function allows you to check and reflect the values immediately.
+
+------------------------------------------------------------------------------
+
+Plugin Information                                     *foldstaff-information*
+
+Plugin:   foldstaff-vim
+
+Version:  0.82
+
+License:  MIT License.
+
+    Copyright © 2022 HongKong
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+~
+Latest:   https://github.com/hongkong3/foldstaff-vim
+
+~
+Enjoy your Vim life, with Folding :)
+
+==============================================================================
+
+USAGE                                                        *foldstaff-usage*
+
+The option settings are lumped together,
+but each function is almost independent of the others.
+
+You don't need to use all of them.
+
+
+Quick Start ~
+Write the fllowing in `vimrc`, and restart Vim. >
+    let g:enable_foldstaff = 1 
+<
+Keymap `zf` and `zF` are use to |foldstaff-marker|.
+|foldstaff-header| and |foldstaff-fold| are automatically used.
+
+Note: |:mkview| and |:loadview| ware use for restoring Folding in |autocmd|.
+If you have problem, please edit relevant sections.
+`(in /plugin/foldstaff.vim)`
+
+------------------------------------------------------------------------------
+
+foldstaff-header                                            *foldstaff-header*
+
+This function is for 'foldtext'.
+Generate the display folded-text, as according to the formatting.
+
+From |foldstart| line, the contents of the line with first character-string
+will be used as the base-text.
+(blank-lines and only-symbols-lines are ignored.)
+
+Note:   When changes to the base-text,
+        will not realtime reflected in the folded-text.
+        It will be updated by...
+        - number of buffer-lines was changed
+        - window resized (columns-number changed)
+        - called |foldstaff#option()| on current buffer
+
+Basically, this is used as callback for Folding, called from Vim.
+The option setting are more important.
+ -> |foldstaff-header-format|, |foldstaff-header-option|
+~
+                                                      *foldstaff-header-usage*
+Setup: ~
+    :set foldtext=foldstaff#header()
+
+                                                            *:FoldstaffHeader*
+Command: ~
+    :FoldstaffHeader {foldlevel}, {"filetype"}
+
+        Display the test-generated folded-text of current(cursor) line.
+
+        {foldlevel} is a number greater then or equal to 1.
+        {"filetype"} is specifies an arbitrary file-type as string.
+        If omitted, the values of the actial buffer is uded.
+
+        The displayed text is also yanked into register {h}.
+        If typing `"hp` can paste on Normal-Mode.
+
+                                                          *foldstaff#header()*
+Function: ~
+    foldstaff#header({lnum}, {foldlevel}, {filetype}) = "folded-text"
+
+        This is almost the same as above Command.
+        This returns the folded-text as result, without displaying it.
+
+------------------------------------------------------------------------------
+
+foldstaff-marker                                            *foldstaff-marker*
+
+This function is set the |fold-marker|, with the right-side aligned.
+ -> |foldstaff-marker-option|
+
+Can possible to set the character of fill at margin, for each |foldlevel|.
+There is unlimit on number of characters, so you can do something like this. >
+  " ( T T)/(^ ^ )`( - -)c(>_< )9_( T T)/(^ ^ )`( - -)c(>_< )9_( T T)/(^ ^ ){{{
+<
+
+                                                      *foldstaff-marker-usage*
+This function is designed to be used setting to |key-mapping|.
+At runtime, it works as follows:
+
+- When executed in Normal-Mode, |fold-marker| will be placed by 
+  the behind of cursor line.
+  - if fold-marker already been placed, then remove it.
+  - Two key-mappings are provided, for the Start and End.
+    - Markers ware indent by start-marker to the bellow rows,
+      and end-marker to the above rows. >
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+
+- When executed with <count>, place |fold-marker| for it |foldlevel|.
+  - if fold-marker already been placed, then replace marker of new |foldlevel|. >
+  " ======================================================================{{{1
+
+- When execute in Visual-Mode(multiline selected), will be placed
+  start-marker on first-line, and end-marker on last-line. >
+  for i in range(10) " - - - - - - - - - - - - - - - - - - - - - - - - - - {{{
+    echo i
+  endfor " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }}}
+<
+
+                        *<Plug>(foldstaff-marker)* *<Plug>(foldstaff-endmarker)*
+Setup:~
+    :map zf <Plug>(foldstaff-marker)
+    :map zF <Plug>(foldstaff-endmarker)
+
+        This is exsamples of |key-mapping|.
+        Feel free to set the actual keys on your like.
+ 
+------------------------------------------------------------------------------
+
+foldstaff-fold                                                *foldstaff-fold*
+
+This function is for 'foldexpr'.  (|fold-expr|)
+This function performs folding according to the contents of the buffers.
+ -> |foldstaff-fold-option|
+
+This has several fold-types, as follows:
+    - type: auto~
+      This is the default value.
+      The contents of buffer are roughly judged
+      and selects type to "code" or "text".
+
+    - type: code~
+      This is for Coding or Script buffers.
+      This is similar to |fold-indent|, but folding into the 
+      previous parent-level row. (like as VS-Code)
+
+      The number of lines to be folded can be adjusted with |foldminlines|.
+
+      And you can also add |folding| with following factors:
+        + |fold-marker| by Vim                `{{{`,`}}}` :'foldmarker'
+          However, |fold-marker| with fold-level are prone to problems...
+        + markdown header format symbol     `###` :line-top
+        + String of `#region` and `#endregion` 
+
+    - type: text~
+      This is mainly for Vim-help.
+
+      Separate buffers with the following factors, 
+      and fold one each separately.
+        1. A row with only the letters `=`, `#`, or `/`
+        2. A row with only the letters `-`, `+`, or `*`
+        3. Paragraph, after 2 or more blank-rows
+
+      As a result, when closing all foldings
+      will looks like a CONTENTS or an OUTLINE.
+      
+    - type: match~
+      Perform folding according to match-pattern, in the option settings.
+      This may be easier than preparing a new function for |folding|...
+
+
+                                      *foldstaff-fold-usage*  *foldstaff#fold()*
+Setup:~
+    :set |foldmethod|=expr |foldexpr|=foldstaff#fold()
+
+        This complates the set up to a point. 
+        But it is often overridden by |modeline|, |ftplugin|, or |autocmd|...
+
+        In such cases, plearse execute bellow Command, or re-override 
+        with |autocmd|, etc. individually. 
+
+                                                              *:FoldstaffFold*
+Command:~
+    :FoldstaffFold {fold-type}
+
+        Performs the folding specified by {fold-type}, on current buffer.
+        {fold-type} can be `auto`, `code`, `text`, `match`.
+        If not specified, `auto` will be used.
+
+------------------------------------------------------------------------------
+
+foldstaff-refresh                                          *foldstaff-refresh*
+
+Update the contents of |foldstaff-header| and |foldstaff-fold|.
+In fact, it just calls |foldstaff-option| without arguments.
+
+~
+Command:~
+    :FoldstaffRefresh
+
+Function:~
+    :call foldstaff#refresh()
+
+------------------------------------------------------------------------------
+
+foldstaff-option                                            *foldstaff-option*
+
+Function for editing options variable of this plugin.
+There are 3ways to set the option value:
+
+1. Set `g:foldstaff` in |vimrc|, and have it readed when Vim start.
+2. Set `g:foldstaff` and call |foldstaff#option()|.
+3. Specify the set option-values as an argument of |foldstaff#option()|
+   and execute it. 
+
+The 2. & 3. methods are to editing the options as you check them.
+
+
+                                  *foldstaff-option-usage*  *foldstaff#option()*
+Function:~
+    foldstaff#option({options}, {flag=0})  =  {options}
+
+        When executed without arguments, it will read the values from
+        `g:foldstaff` and overwrite the settings.
+
+        Note: As a result, it returns a DICT-variable of the current settings.
+
+        {options} is a DICT-variable as described below.
+         -> |foldstaff-option-variable|
+        Specify the values as {filetype}.{method}.{attribute} : {value} >
+        ex) {'vim': #{header: #{width: '+0', ellipsis: '~ ',}}}
+<        can be set the multiple values, but typing is so tedious...
+
+        {flag} can be a numeric value:
+         0      Overrides existing settings
+         1      Initialize the settings and then update them
+        +2      Displays the current setting values
+                Note: Display in `:echom`, use `:message` to can check it later. 
+
+        To the setting values check only, use following. >
+            call foldstaff#option(0, 2)
+<
+                                                            *:FoldstaffOption*
+Command:~
+    :FoldstaffOption {filetype}.{method}.{attribute} = {value}
+
+         This is ex-command version.
+         When executed without arguments, display current option values,
+         and Yank options-variable to register `"h`.
+         
+         When setting option, specify {filetype} and {method} can omitted,
+         but set by only a Attribute at once.
+>
+         :FoldstaffOption help.fold.type = 'text'
+         " # foldstaff.help.fold.type = 'text'
+
+         :FoldstaffOption header[width] = 100
+         " # foldstaff = {'_': {'header': {'width': 100}}}
+
+         :FoldstaffOption FILL.0 = www_
+         " # foldstaff._.marker.fill[0] = 'www_'
+
+         :FoldstaffOption vim.Modify = [['\v\{s:n\}', {_-> expand('%:t:r')}]]
+<
+
+
+Option-Variable:~
+                               *foldstaff-variable*  *foldstaff-option-variable*
+The |filetype| `'_'` is basic-filetype.
+If there is no setting specific to |filetype|, this types value will be applied. >
+
+    [g:]foldstaff = {
+        "_" = #{                            " filetype [basic]
+            header = #{                     " @ foldstaff-header
+                format = [                  "   formatting text(s)
+                    '%i%t %<%>%{repeat("[", %v)%}%L]',
+                ],
+                width = '+0',               "   max-length of folded text
+                min = 8,                    "   min-length of base-text
+                ellipsis = '~',             "   symbols when base-text omitted
+                modify = [],                "   substitution-list to base-text
+            },
+            marker = #{                     " @ foldstaff-marker
+                fill = [                    "   padding strings list
+                    '- ',                   "     for non-level
+                    '=', '_', '.',          "     for each foldlevel
+                ],
+                width = 0,                  "   length of fold marker
+            },
+            fold = #{                       " @ foldstaff-fold
+                type = 'auto',              "   default fold-type
+                keyswitch = -1,             "   za zo zc key-maps switch flag
+                match = [],                 "   for fold-type: "match"
+            },
+        },
+    " # The same settings as above can be added for each filetypes.
+        "vim" = {
+            ...
+        },
+        "help" = {
+            ...
+        }, ...
+    }
+
+Note: The actual value of the option is kept as script-variable.
+      After setting, `g:foldstaff` can be |:unlet|.
+
+==============================================================================
+
+OPTION                                               *foldstaff-option-detail*
+
+This section describes the details of each option values.
+For on how to Set-Options, please refer to |foldstaff-option|.
+
+
+option-filetype                                    *foldstaff-option-filetype*
+
+    `_`               This is base-filetype. For values for which there is 
+                    no-|filetpye| setting, the values for this will be applied.
+
+    `vim`, `help`,.etc  Any |filetypes| you added.
+                    This value is a direct reference to the value displayed in
+                    `:set filetype?` as key-names in the DICT-variable.
+                    That is, it is Case-Sensitive. ~
+
+                    This also allows you you to include Buffers,
+                    that do not actually exist as files.
+                    On the other hand, it cannot be applied
+                    when the |filetype| is undefined...
+
+------------------------------------------------------------------------------
+
+header-options                                       *foldstaff-header-option*
+~
+*foldstaff-header-width*     `=   '+0'`
+    Number of |foldstaff-header|(folded-text, closed-|foldtext|) characters.
+    
+    Usually, will fill in margin or omit base-text to match is
+    this number of characters.
+    However, if |winwidth| is small, it will be adjusted accodingly.
+
+    The value be specified as Number or String.
+    In the case of Number, it will be the number of characters at the number.
+    In the case of String, width is relative to 'textwidth'.
+    (this is similar to setting of the |colorcolumn|)
+
+    However, when the Number less than `12`, or the String and 'textwidth'==0,
+    the default value of `78` in Vim is applied.
+
+    Note: if you want to always fill the window to edge, a set such as 999999.  
+
+~
+*foldstaff-header-min*       `=   8`
+    If the Text generated by |fodlstaff-header| is too long than
+    |foldstaff-header-width|, omit base-text to adjust the number of characters.
+    This is the minimum number of characters in that case.
+
+    The sum of this number, characters in |foldstaff-header-ellipsis|, and
+    minimum of formatting-text will be the minimum generated-text.
+
+    As a result, the number of characters in the |foldstaff-header-width|
+    may be exceeded.
+
+~
+*foldstaff-header-ellipsis*  `=   '~'`
+    This is String that is added to the base-text to indicate the omission
+    when it is omitted.
+
+~
+*foldstaff-header-modify* = [[{pat}, {sub}],..]
+    Set the substitution-pattern to be executed for the base-text.
+    This {pat} and {sub} pairs are used directly for |substitute()|.
+
+    Multiple pairs can be set. Perform the substitutions in the order of set.
+
+    The {flags}:"g" is enabled by default. If you want to disable it,
+    "\s" or "\o" into the {pat} top. >
+    ex) :FoldstaffOption vim modify.0 = ['\s\vfu%[nction]>\!?', '->']
+<
+    I think you can do many things with it depending on how you use it.
+
+------------------------------------------------------------------------------
+
+foldstaff-header-format                              *foldstaff-header-format*
+
+~
+foldstaff-header-format `= ['%i%t %<%>%{repeat("[", %v)%}%L]']`
+
+    Specifies the corresponding format-text for each |foldlevel|.
+    if less than |foldlevel| is specified, the last item will be used.
+
+    Those format-text consists of |printf()| style "%" items interspersed with 
+    normal text. |foldtext| is generated by replacing the "%item" part with 
+    the corresponding content.
+    A single percent sign can be given as "%%".
+
+    Note: Numerical include is not supported such as "%04e".
+
+    The correspondence between character specified by "%item" and 
+    replacement contents is as fllows:                
+
+    item        contents ~
+    *%t*          base-text. The base-text of the line containing the first 
+                non-symbolic character from foldstart.
+                Pre-replacement by |foldstaff-header-modify| will be performed.
+
+    *%<* ... *%>*   When result text length short than |foldstaff-header-width|,
+                fill the margin by repeat string, from between "%< ... %>".
+
+                By placing this inside format-text, you can align right edge.
+                If empty, space will be used.  `"%<%>"`
+                I think probably supports multi-byte characters. >
+                    "%<.。.:*・゜☆%>"
+
+<    *%{* ... *%}*   Evaluate expression between "%{ ... %}" and replace to result.
+                Note: Order of replacement is "%t" and "%<%>" are last,
+                this is order before it.
+                That is, you can use other items as arguments to expression. >
+                    "%{repeat('vi', %v)%}m"
+
+<    *%s*          Line number of |foldstart|.
+    *%S*          Line number of |foldstart| with padding.
+
+    *%e*          Line number of |foldend|
+    *%E*          Line number of |foldend| with padding.
+
+    *%l*          Number of lines of closed |folding|. (end - start + 1)
+    *%L*          Number of lines of closed |folding| with padding.
+
+    *%p*          Percentage of |foldstart|-line in buffer.  [0 .. 100]
+    *%P*          Percentage of |foldstart|-line in buffer.  ["  0.0" .. "100.0"]
+
+    *%v*          Current closed |foldlevel|. the value start from 1.
+    *%V*          Max |foldlevel|
+
+    *%i*          Indent on |foldstat| line. [space-characters]
+    *%I*          Indent-Level of |foldstart| line. (|indent()| / |shiftwidth()|)
+
+    *%T*          Line number where the base-text.
+
+    *%d*          |folddashes| ["-"]
+
+    *%D*          'diff' = 0 or 1
+
+------------------------------------------------------------------------------
+
+marker-options                                       *foldstaff-marker-option*
+~
+*foldstaff-marker-fill*      `=   ['- ', '=','_','.']`
+    Specify strings to fill in the margin,
+    when 'foldmarker' is placed by |foldstaff-marker|.
+
+    The 1st String is used when non level 'foldmarker'.
+    Subsequent Strings are used for each level |foldmarker|.
+    (If the level of exceeds the number of Strings, the last will be used)
+
+    There is no limit to the number of string and type of characters.
+    But please notes that if the string contains 'commentstring' or
+    'foldmarker', it will cause problems as buffers language or foldings...
+
+~
+*foldstaff-marker-width*     `=   0`
+    This specifies the right-aligned position of the |foldstaff-marker|.
+
+    The usage and settings are almost same as the |foldstaff-header-width|.
+    However, when the number 0, if refers to the vlue |foldstaff-header-width|. 
+    
+    "+0" "-6" "+2"              String, relative from 'textwidth'
+    36 64 78 100                Number, numeric of characters it number
+    0                           Number 0, refer to |foldstaff-header-width|
+  
+------------------------------------------------------------------------------
+
+fold-options                                           *foldstaff-fold-option*
+~
+*foldstaff-fold-type*        `=   'auto'`   [auto/code/text/match]
+    Specifies the folding method-type(|fold-expr|, 'foldexpr').
+    See |foldstaff-fold| for an overview of each type.
+
+    Here is only short introduction:
+        "auto"      check the buffer contents and switch to "code" or "text"
+        "code"      folding by indent, also supports |foldmarker| and more
+        "text"      clip by symbolic line, and folding the individual
+        "match"     judge each lines by a setted pattern matching
+
+    In fact, there are only 2 types...
+    Type of "match" can only be executed if |foldstaff-fold-match| is set.
+
+~
+*foldstaff-fold-keyswitch*   `=   -1`       [0/1/-1]
+    Switches Keymap |zo|, |zc| ,and |za| to |zO|, |zC|, and |zA|. (fold open/close/toggle)
+    
+    When Folding with type="text" as described above, the folds will overlap.
+    This means need to open/close the folding many times...
+
+    This is an option to counter It:
+         1          always switch that
+         0          not switched
+        -1          only when type="text"
+
+    By the way, if |foldstaff-fold| is disabled, this function will not work.
+
+~
+*foldstaff-fold-match* = [[{ret}, {pat1}, {pat2},..],..]
+    Match patterns for fold-type="match".
+    You can set multiple sets of a {ret} and some {pat} as LIST.
+
+    {ret} is set to the return value of |fold-expr|.
+    {pat} is set to the match-|pattern| for each lines.
+
+    The machanism is to return the result of {ret} for the rows where
+    all {pat} are match.
+    If not all matches are found, "=" is returned.
+
+    If there is more than one {pat}, it will inspect the lines around
+    the current line for matches.
+    
+    It will match each row as follows:     `lnum = current-line` >
+        {pat}*1     [{ret}, {lnum}]
+        {pat}*2     [{ret}, {lnum-1}, {lnum}]
+        {pat}*3     [{ret}, {lnum-1}, {lnum}, {lnum+1}]
+        {pat}*4     [{ret}, {lnum-2}, {lnum-1}, {lnum}, {lnum+1}]
+        {pat}*5     [{ret}, {lnum-2}, {lnum-1}, {lnum}, {lnum+1}, {lnum+2}]
+        {pat}*...   [{ret}, ........]
+<    If {pat}=='', it is automatically assumed to be the match.
+
+    As you can imagine, this is a normal and heavy process...
+
+==============================================================================
+
+CHANGELOG                                                *foldstaff-changelog*
+
+0.80:
+- Initial upload, code only
+- GitHub studying...
+
+0.82:
+- Write help
+- Minor bug fixes
+- Japanese version help added.
+
+==============================================================================
+ vim:set tw=78 ft=help norl:                                  Author: HongKong
