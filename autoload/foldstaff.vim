@@ -14,22 +14,22 @@ let s:n = expand('<sfile>:t:r')
 let s:{s:n}_default = {}
 
 let s:{s:n}_default.header = {}
-let s:{s:n}_default.header.format = ['%i%t %<%>%{repeat("[", %v)%}%L]']
+let s:{s:n}_default.header.format = ['%i%t %<%>%{repeat("+", %v)%}[%L]']
 let s:{s:n}_default.header.width = '+0'
 let s:{s:n}_default.header.modify = []
 let s:{s:n}_default.header.min = 8
 let s:{s:n}_default.header.ellipsis = '~'
 
 let s:{s:n}_default.marker = {}
-let s:{s:n}_default.marker.fill = ['- ', '=', '-', '= ', '- ', '. ']
+let s:{s:n}_default.marker.fill = ['- ', '=', '_', '.']
 let s:{s:n}_default.marker.width = 0
 
 let s:{s:n}_default.fold = {}
 let s:{s:n}_default.fold.type = 'auto'
-let s:{s:n}_default.fold.match = []
 let s:{s:n}_default.fold.keyswitch = -1
+let s:{s:n}_default.fold.match = []
 
-" running variables: -----------------------------------------------------{{{2
+" running variables: _____________________________________________________{{{2
 " b:{s:n}_header = {
 "   width:  {current-width},      # FLG1
 "   line:   {max-line},           # FLG2
@@ -52,7 +52,7 @@ let s:{s:n}_default.fold.keyswitch = -1
 let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
 
 " MODULE: ================================================================{{{1
-  " ----------------------------------------------------------------------{{{2
+  " ______________________________________________________________________{{{2
   fu! s:is(...) abort " (A, B)  =  equal?
     return (type(a:1)==type(a:2)) && (a:1==a:2)
   endfu
@@ -63,7 +63,7 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
     return escape(a:1, (get(a:, 2)!=0 ? '$%&()^|\|@[{+*]}<>?' :'$%&()-=^~\|@[{+*]}<.>?'))
   endfu
 
-  " ----------------------------------------------------------------------{{{2
+  " ______________________________________________________________________{{{2
   fu! s:get(...) abort " (var, '{key/idx...}', [default=0])  =  value @deepget()
     if a:0<1 | return 0 | elseif a:0==1 | return a:1 | endif
     let [r, d] = [a:1, get(a:, 3, 0)]
@@ -84,7 +84,7 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
     \  10: {a,b-> get(a, b, 0z00ff)},
     \ }
 
-  " ----------------------------------------------------------------------{{{2
+  " ______________________________________________________________________{{{2
   fu! s:set(...) abort " ('var-name', [value])  =  var  # CAUTION`s:`
     let tgt = get(a:, 1, 'g:tmp') | let val = get(a:, 2, 0z00ff)
     if tgt=~#'\v^[gtwbs]:'
@@ -116,13 +116,13 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
     return r[tgt[-1]]
   endfu
 
-  " ----------------------------------------------------------------------{{{2
+  " ______________________________________________________________________{{{2
   fu! s:is_cmt(...) abort " ([lnum='.'])  =  comment-row?
     let l = get(a:, 1, line('.'))
     return hlID('Comment')==synIDtrans(synID(l, indent(l)+1, 1))    
   endfu
 
-  " ----------------------------------------------------------------------{{{2
+  " ______________________________________________________________________{{{2
   fu! s:winwidth(...) abort " ([winID=0])  =  displayed-col-count
     let wid = get(a:, 1, 0)
     if wid<1000 | let wid = win_getid(wid) | endif
@@ -138,7 +138,7 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
     return winwidth(wid) - reduce(wn, {a,b-> a+b})
   endfu
 
-  " ----------------------------------------------------------------------{{{2
+  " ______________________________________________________________________{{{2
   fu! s:replace(...) abort " ('str', ['pat', {sub}]... ,[repeat=0])  =  'replaced'
     let tgt = get(a:, 1, '') | let one = 0 | let arg = a:000[1:]
 
@@ -161,8 +161,9 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
     return tgt
   endfu
 
+
 " SUB: ==================================================================={{{1
-" ------------------------------------------------------------------------{{{2
+" ________________________________________________________________________{{{2
 fu! s:show_opt(...) abort " ({options})
   let opt = get(a:, 1, s:{s:n})
   let gen = s:{s:n}._ | let flg = has_key(opt, '_')
@@ -171,11 +172,11 @@ fu! s:show_opt(...) abort " ({options})
 
   let msg = [printf('%s: {', s:n)]
 
-  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+  " ......................................................................{{{3
   fu! s:_attr(v) " (val) = 'string'
     return type(a:v)==1 ? printf('''%s''', a:v) : a:v
   endfu
-  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+  " ......................................................................}}}3
 
   for ft in keys(opt)
     call add(msg, printf('%s[''%s'']: {', idt[0], ft))
@@ -220,7 +221,7 @@ fu! s:show_opt(...) abort " ({options})
 endfu
 
 
-" ------------------------------------------------------------------------{{{2
+" ________________________________________________________________________{{{2
 fu! s:get_param() abort " attributes for header-text
   let ll = line('$')
   let prm = #{
@@ -237,7 +238,7 @@ fu! s:get_param() abort " attributes for header-text
 endfu
 
 
-" ------------------------------------------------------------------------{{{2
+" ________________________________________________________________________{{{2
 fu! s:key_switch(...) abort " ([0:OFF 1:ON -1:toggle])  # Switch folding Keys
   let f = get(a:, 1)
   let km = ['za', 'zc', 'zo', '', 'zA', 'zC', 'zO', '']
@@ -255,7 +256,7 @@ endfu
 
 
 " MAIN: =================================================================={{{1
-" ------------------------------------------------------------------------{{{2
+" ________________________________________________________________________{{{2
 fu! {s:n}#_option(...) abort " ([{options}], [flg: 1:new 2:show])  =  {options}
   let opt = get(a:, 1) | let flg = get(a:, 2)
   let def = s:{s:n}_default | let bad = []
@@ -307,7 +308,7 @@ fu! {s:n}#_option(...) abort " ([{options}], [flg: 1:new 2:show])  =  {options}
 endfu
 
 
-" ------------------------------------------------------------------------{{{2
+" ________________________________________________________________________{{{2
 fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
   if !exists('s:'..s:n) | call {s:n}#_option() | endif " just to sure
   " if type(get(a:, 1, ''))==0 | let v:foldstart = a:1 | endif " for TEST 
@@ -412,8 +413,8 @@ fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
 endfu
 
 
-" ------------------------------------------------------------------------{{{2
-fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])
+" ________________________________________________________________________{{{2
+fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])  @keymaps
   if &fdm=='manual' | return execute('normal! zf') | endif
   if !exists('s:'..s:n) | call {s:n}#_option() | endif " stand up option
 
@@ -436,7 +437,7 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])
     \   printf('\v\C^(.*%s.*)\s*(%s.{-})$', a[0], a[1]),
     \ ]
 
-  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+  " ......................................................................{{{3
   fu! s:_insmrk(...) closure " (lnum, flg)
     let f = get(a:, 2)!=0 | let s = getline(a:1)
     let al = f ? prevnonblank(a:1) : nextnonblank(a:1)
@@ -459,7 +460,7 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])
 
     return row[0]..repeat(' ', len-strwidth(ff))..ff..mrk..row[1]
   endfu
-  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+  " ......................................................................}}}3
 
   let ff = reduce(map(range(4), {i-> stridx(getline(ml[i/2]), fmr[i%2])>=0}), {a,b-> a+b})>0
   if ff | for l in range(ml[0], ml[1]) " remove the marker
@@ -476,12 +477,12 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])
 endfu
 
 
-" ------------------------------------------------------------------------{{{2
+" ________________________________________________________________________{{{2
 fu! {s:n}#_fold(...) abort " (['type'/lnum])  @fold_expr
   if !exists('s:'..s:n) | call {s:n}#_option() | endif " just to sure
   if !exists('b:'..s:n..'_fold') | let b:{s:n}_fold = {} | endif
 
-  " -----------------------------------------------------------------------{{{
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
   fu! s:_check() " = code? / text?
     if &ft=~?'^help$' | return 'text' | endif
     let a = line('$') | let l = extend(range(a/2+1, a), range(1, a/2))
@@ -508,7 +509,7 @@ fu! {s:n}#_fold(...) abort " (['type'/lnum])  @fold_expr
 
     return ret
   endfu
-  " -----------------------------------------------------------------------}}}
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
 
   let type = get(b:{s:n}_fold, 'type', '') | let a = get(a:, 1)
   let a = type(a)!=1 ? '' :
@@ -536,11 +537,12 @@ fu! {s:n}#_fold(...) abort " (['type'/lnum])  @fold_expr
     \ type=='match' ? function('s:fold_match', a:000)() : -1
 endfu
 
-  " = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = {{{3
+  " ......................................................................{{{3
   fu! s:fold_code(...) abort " ([lnum])  =  fold-expr result
     " at the last, simple is better, it seems...
 
-    fu! s:_mk(...) closure " (lnum, foldLv) = foldLv as Marker - - - - - - {{{
+    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+    fu! s:_mk(...) closure " (lnum, foldLv) = foldLv as Marker
       let s = getline(a:1) | let v = get(a:, 2)
       if !s:is_cmt(a:1) && s=~fmr[2] " markdown: ### header
         let v = '>'..strlen(matchstr(s, fmr[2]))
@@ -557,24 +559,25 @@ endfu
       if !s:is(v, a:2) | let ep[1] = v[1]-(v[0]=='<') | endif
       return v
     endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
-
-    fu! s:_fv(...) " (lnum, [move= +1]) = foldLv - - - - - - - - - - - - - {{{
+    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+    fu! s:_fv(...) " (lnum, [move= +1]) = foldLv
       let a = get(a:, 2)-0
       return foldlevel(a<0 ? prevnonblank(a:1-1) : nextnonblank(a:1+(a>0 ? 1 : 0)))
     endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
-
-    fu! s:_iv(...) " (lnum, [move= +1]) = indentLv - - - - - - - - - - - - {{{
+    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+    fu! s:_iv(...) " (lnum, [move= +1]) = indentLv
       let a = get(a:, 2)-0
       return indent(a<0 ? prevnonblank(a:1-1) : nextnonblank(a:1+(a>0 ? 1 : 0)))/shiftwidth()
     endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
 
-    fu! s:_rv(...) " (lnum) = resume foldLv? - - - - - - - - - - - - - - - {{{
+    fu! s:_rv(...) " (lnum) = resume foldLv?
       let mk = s:_mk(a:1-1, s:_fv(a:1-2)) " # check end-marker
       if mk=~'\v\<\d+' | return mk[1:]-1 | endif
       let pf = s:_fv(a:1, -1)
       let pi = s:_iv(a:1, -1)-s:_iv(nextnonblank(a:1))
       return pi>0 ? max([0, pf-pi]) : pf
-    endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+    endfu
+    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }}}4
 
     let cl = get(a:, 1, v:lnum)-0 | if cl==0 | let cl = v:lnum | endif
     let ep = get(b:{s:n}_fold, 'expr', [0])
@@ -605,10 +608,11 @@ endfu
     return ep[1]>pp ? '>'..ep[1] : pp
   endfu
 
-  " = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = {{{3
+  " ......................................................................{{{3
   fu! s:fold_text(...) abort " ([lnum])  =  fold-expr result
 
-    fu! s:_rs(...) closure " (lnum)  =  'character of row-state' - - - - - {{{
+    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+    fu! s:_rs(...) closure " (lnum)  =  'character of row-state'
       let r = getline(a:1)
       return r=~'\v^\s*[\<\>]?$' ? ' ' :
         \   r=~'\v^\s*([\=\#\/])\s*(\1\s*){7,}$' ? '=' :
@@ -655,7 +659,7 @@ endfu
     return p
   endfu
 
-  " = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = {{{3
+  " ......................................................................{{{3
   fu! s:fold_match(...) abort " ([lnum])  =  fold-expr result
     let pat = s:get(s:{s:n}, &ft..'.fold.match', s:get(s:{s:n}, '_.fold.match', []))
     if len(pat)<1
@@ -681,4 +685,4 @@ endfu
 if !exists(printf('s:%s._', s:n)) | call {s:n}#_option() | endif " initialize
 
 let &cpo = s:t_cpo | unlet s:t_cpo
-" vim:set ft=vim fenc=utf-8 fml=3 norl:                       Author: HongKong
+" vim:set ft=vim fenc=utf-8 norl:                             Author: HongKong
