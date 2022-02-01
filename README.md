@@ -1,65 +1,50 @@
 # foldstaff-vim
 
-Folding utilities for Vim.  
-I'm working on it...  
+> *This document has been prepared baded on automatic translation.  Please forgive me if there are some strange sentences...*  
 
 
-## 💎sandbox: excuse me for disturbing you...
+<br>
 
-    4space by code?
+<!--
+- [Introduction](#user-content-introduction)
+- [Installation](#user-content-installation)
+- [Usage](#user-content-usage)
+- [Option](#user-content-option)
+----
 
-+ list
-  - list
-  1. can both?
+## Introduction
+-->
+This plugin is utilities for **Folding** at **Vim editor**.   
+The settings for each utility, can be switched for each `filetype`.    
 
-> bq?
-> > bbq?
+[foldstaff-vim][ghp] provides the bellow utilities: 
 
-```vim
-  ec "code block"
-```
+* **foldstaff-header**  
+  For *foldtext*.  Generates the display Text of closed Folding.  
+  If by adding *format-text*, you can set the formatting for each `filetype` and each `foldlevel`.  
 
-  |What's the |Table is|tihs?|
-  |:--|:-:|--:|
-  |R|P|g|
-  |1|2|3|
+* **foldstaff-marker**  
+  Set the `fold-marker`, with right-side aligned.  
+  That is almot all there is to it.   
 
-![avatar?](https://avatars.githubusercontent.com/u/97036597?s=80&v=80)
+* **foldstaff-fold**  
+  Folding method for *foldexpr*, when the `fold-expr`.  
+  This has some folding types.  
+    
+* **foldstaff-option**  
+  This is a function for option setting, for above utilities.  
+  Although it is possible to set global-variable`g:` as in general plugins, this function allows you to check and reflect the values immediately.  
 
-- [x] #777
-- [ ] where come marks?  
-  Checkbox need on List?
+
+## Installation
+## Usage
+## Option
+
+*...Right now I'm still writing.*
 
 ----
 
+*This is no relationship with any real person, organization, or name.*
 
-Does it also display in color? `#FF8020`  
-This is something else...  
 
-strings  *em* **strong**  
-***Isn't it possible to display in color?***
-
-<details style='color:red'>
-    <summary>Tag is enable?</summary>
-    Hidden messages.<br>
-    The markdown doesn't work in tags.<br><br>
-    Is it possible that <kbd style='color:red;font-size:3em'>style</kbd> are also enabled too?<br>
-    So tags work, but <code fg="#ff0000">attributes</code> don't...<br><br>
-</details>
-
-****
-
-### Can jump here?
-
-![](https://via.placeholder.com/480x60.png/e20/021?text=There+have+to+go+this+far+to+color+it...)  
-
-The badges are not available on GitHub...  
-<a target="_blank" href="https://shields.io">https://shields.io</a>  
-don't work `target="_blank"` :confused:  
-Emoji🍣 seems to be easier to input directly?  
-(If I can't see it, use image completion here?)  
-
-[junmp to?](#user-content-can-jump-here)  
-<a href="#user-content-can-jump-here">Even plain A-Tags are dead...</a>  
-After the push, it worked fine!
-
+[ghp]: https://github.com/hongkong3/foldstaff-vim/
