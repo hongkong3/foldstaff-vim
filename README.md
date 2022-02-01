@@ -11,7 +11,6 @@
 - [Usage](#user-content-usage)
 - [Option](#user-content-option)
 ----
-
 ## Introduction
 -->
 This plugin is utilities for **Folding** at **Vim editor**.   
@@ -21,7 +20,9 @@ The settings for each utility, can be switched for each `filetype`.
 
 * **foldstaff-header**  
   For *foldtext*.  Generates the display Text of closed Folding.  
-  If by adding *format-text*, you can set the formatting for each `filetype` and each `foldlevel`.  
+  You can freely edit the content to be displayed using *formatting-text* as like the `statusline`.  
+  And you can set the *formatting-text* for each `filetype` and each `foldlevel`.  
+  You can also specify the length of the display Text.  
 
 * **foldstaff-marker**  
   Set the `fold-marker`, with right-side aligned.  
@@ -36,6 +37,22 @@ The settings for each utility, can be switched for each `filetype`.
   Although it is possible to set global-variable`g:` as in general plugins, this function allows you to check and reflect the values immediately.  
 
 
+## Screenshot
+
+> Default:  
+![c1](https://user-images.githubusercontent.com/97036597/152065346-2364bbca-4cee-4a76-8ce9-82b7e626c715.png)
+
+> Custom & Modify:  
+![c2](https://user-images.githubusercontent.com/97036597/152065366-4261e10e-9764-4d05-8713-5182a1a20ce9.png)
+  
+> Funcky:  
+![c3](https://user-images.githubusercontent.com/97036597/152065375-d1651cf1-7c46-4f8b-8bb6-6a091001c038.png)
+
+> Vim-Help at **foldstaff-fold**(type="text"):  
+![t1](https://user-images.githubusercontent.com/97036597/152065191-7ceb2a59-72b7-44f2-b51f-a3e244699f2f.png)
+
+----
+ 
 ## Installation
 ## Usage
 ## Option
