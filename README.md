@@ -48,7 +48,7 @@ The settings for each utility, can be switched for each `filetype`.
 > Default:  
 ![c1](https://user-images.githubusercontent.com/97036597/152065346-2364bbca-4cee-4a76-8ce9-82b7e626c715.png)
 
-> Custom & Modify:  
+> Modify:  
 ![c2](https://user-images.githubusercontent.com/97036597/152065366-4261e10e-9764-4d05-8713-5182a1a20ce9.png)
   
 > Funcky:  
@@ -59,7 +59,7 @@ The settings for each utility, can be switched for each `filetype`.
 
 ----
 ## Installation
-Install using your favorite package managers.
+Install using your favorite package manager.
 
 [**Vundle:**](https://github.com/VundleVim/Vundle.vime)
 ```vim
@@ -89,20 +89,82 @@ Place this in your *.vimrc*.
 ```vim
 let g:enable_foldstaff = 1
 ```
+This will allow you to use all the utilities.
+
+The following is an introduction of how to use and set up each of them individually.
 
 <br />
 
-### foldstaff-header
-It is used as a callback function for `foldtext` from Vim.  
+### foldstaff-header:
+**Setup:**  
+```vim
+:set foldtext=foldstaff#header()
+```
+This is used as a callback function for `foldtext` from **Vim**.  
+
+<br />
+
+> *CAUTION:*  
+When changes to the base-text, will not realtime reflected in the folded-text.  
+It will be updated by...  
+ \* number of buffer-lines changed  
+ \* window resized (window-columns changed)  
+ \* called `foldstaff#option()` on current buffer  
 
 
+### foldstaff-marker:
+
+<br />
+
+### foldstaff-fold:
+
+<br />
+
+### foldstaff-option:
 
 ----
 ## Option
-
-*...Right now I'm still writing.*
+The option values in this plugin are managed by a DICT variable.  
+The contents of this variable are as follows:  
+```vim
+    " @line-continuation "\" omitted.
+    [g:]foldstaff = {
+        "_" = #{                            " filetype [basic]
+            header = #{                     " @ foldstaff-header
+                format = [                  "   formatting text(s)
+                    '%i%t %<%>%{repeat("[", %v)%}%L]',
+                ],
+                width = '+0',               "   max-length of folded text
+                min = 8,                    "   min-length of base-text
+                ellipsis = '~',             "   symbols when base-text omitted
+                modify = [],                "   substitution-list to base-text
+            },
+            marker = #{                     " @ foldstaff-marker
+                fill = [                    "   padding strings list
+                    '- ',                   "     for non-level
+                    '=', '_', '.',          "     for each foldlevel
+                ],
+                width = 0,                  "   length of fold marker
+            },
+            fold = #{                       " @ foldstaff-fold
+                type = 'auto',              "   fold-type: [code/text/match/auto]
+                keyswitch = -1,             "   za zo zc key-maps switch flag
+                match = [],                 "   for fold-type: "match"
+            },
+        },
+    " # The same settings as above can be added for each filetypes.
+        "vim" = {
+            ...
+        },
+        "help" = {
+            ...
+        }, ...
+    }
+```
+See `:h foldstaff-option-detail` for details of each setting value.
 
 ----
+*...Right now I'm still writing.*  
 
 *This is no relationship with any real person, organization, or name.*
 
