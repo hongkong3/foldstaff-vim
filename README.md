@@ -1,6 +1,6 @@
 # foldstaff-vim
 [![REQUIRE: Vim 8.2-later?](https://img.shields.io/static/v1?label=plugin&message=8.2&color=2a2&logo=vim)](https://www.vim.org "REQUIRE: Vim 8.2 later")&nbsp;
-[![MIT License](https://img.shields.io/static/v1?label=license&message=MIT&color=28c)](LICENSE "MIT License")&nbsp;
+[![MIT License](https://img.shields.io/static/v1?label=license&message=MIT&color=28c)](../../LICENSE "MIT License")&nbsp;
  [![plugin version 0.82](https://img.shields.io/static/v1?label=version&message=0.82&color=e62)](https://github.com/hongkong3/foldstaff-vim/ "plugin version 0.82")&nbsp;
 
 > *This document has been prepared baded on automatic translation.  Please forgive me if there are some strange sentences...*  
