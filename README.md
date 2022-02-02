@@ -1,4 +1,4 @@
-# foldstaff-vim
+# [<img src="https://user-images.githubusercontent.com/97036597/152203062-8592a88b-9d65-4a02-b283-a9e08fc86026.svg" width="32px" height="32px" />]()foldstaff-vim
 
 [![REQUIRE: Vim 8.2-later?](https://img.shields.io/static/v1?label=plugin&message=8.2%2B&color=2a2&logo=vim)](https://www.vim.org "REQUIRE: Vim 8.2 later")&nbsp;
 [![MIT License](https://img.shields.io/static/v1?label=license&message=MIT&color=28c)](LICENSE "MIT License")&nbsp;
