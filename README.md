@@ -133,20 +133,20 @@ At runtime, it works as follows:
 - When executed in Normal-Mode, *fold-marker* will be placed by the behind of cursor line.  
   - if *fold-marker* already been placed, then remove it.  
 ```vim
-  " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+  " - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
 ```
 
-- When executed with `<count>`[^fmr], place *fold-marker* for it **foldlevel**.
+- When executed with <em title="for example, an input like &#34;1zf&#34; or &#34;2zF&#34;.">&lt;count&gt;</em>[^fmr], place *fold-marker* for it **foldlevel**.
   - if *fold-marker* already been placed, then replace marker of new **foldlevel**. 
 ```vim
-  " ======================================================================{{{2
+  " ===================================================={{{2
 ```
 
 - When execute in Visual-Mode(multiline selected), will be placed **start-marker** on first-line, and **end-marker** on last-line.  
 ```vim
-  for i in range(10) " - - - - - - - - - - - - - - - - - - - - - - - - - - {{{
+  for i in range(10) " - - - - - - - - - - - - - - - - - {{{
     echo i
-  endfor " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }}}
+  endfor " - - - - - - - - - - - - - - - - - - - - - - - }}}
 ```
 
 <br />
@@ -154,7 +154,7 @@ At runtime, it works as follows:
 Also, you can possible to set the character of fill at margin, for each **foldlevel**.  
 There is unlimit characters, so you can do something like this.  
 ```vim
-  " ( T T)/(^ ^ )`( - -)c(>_< )9_( T T)/(^ ^ )`( - -)c(>_< )9_( T T)/(^ ^ ){{{
+  " ( T T)/(^ ^ )`( - -)c(>_< )9_( T T)/(^ ^ )`( - -)c(>_{{{
 ```
 
 [^fmr]: for example, an input like "1zf" or "2zF".
@@ -178,7 +178,8 @@ It may be more constructive to execute the following **Ex-Command** as needed.
 
 **Command:**
 ```vim
-:FoldstaffFold [{type}]
+:FoldstaffFold
+:FoldstaffFold {type}
 ```
 {type} cna be **code**, **text**, **match**, or **auto**.  
 If {type} is omitted, then **auto** will be used.  
@@ -188,6 +189,29 @@ If **match** is specified, it cannot be executed unless `:FoldstaffOption fold.m
 
 - - - - - - - - - - - - - - - - - - - - - - - -
 ### foldstaff-option:
+This is a dedicated function for setting options for this plugin.  
+A function version is also available, but I think it is easier to use the command.  
+
+<br />
+
+**Command:**
+```vim
+:FoldstaffOption
+:FoldstaffOption {filetype}.{method}.{key} = {value}
+:FoldstaffOption {filetype}.{method}.{key}[index] = {value}
+```
+When executed with no argument, if `g:foldstaff` exists, it will read the setting.  
+
+If arguments are specified, it will change the setting to that value.  
+The only part of the argument that is required is the `{key} = {value}` part.  
+Arguments *{filetype}* and *{method}* can be omitted.  
+
+For the about to be specified for *{filetype}*, *{method}* and *{key}*, please check [**Option**](#user-content-option) described below.  
+
+<br />
+
+After execution, it will display the changed *option-vriable*, and update [foldstaff-header](#user-content-foldstaff-header) and [foldstaff-fold](#user-content-foldstaff-fold).  
+It also acquires the changed *option-variable* in register `h` as a string. (type `"hp` to paste it)  
 
 - - - - - - - - - - - - - - - - - - - - - - - -
 ## Option
