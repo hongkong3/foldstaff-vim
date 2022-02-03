@@ -76,10 +76,10 @@ Install using your favorite package manager.
   ```
 - [**VimPlug:**](https://github.com/junegunn/vim-plug)  
   ```vim
-  Plug 'hongkong3/foldstaff-vim'</pre>
+  Plug 'hongkong3/foldstaff-vim'
   ```
 - [**Pathgon:**](https://github.com/tpope/vim-pathogen)  
-  ```vim
+  ```shell
   cd ~/.view/bundle
   git clone https://github.com/hongkong3/foldstaff-vim
   ```
