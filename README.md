@@ -11,7 +11,6 @@
 > *This document has been prepared baded on automatic translation.  
 > Please forgive me if there are some strange sentences...*  
 
-*...Right now I'm still writing.* 🤔  
 <br>
 
 This plugin is utilities for *Folding* at **Vim editor**.   
@@ -68,13 +67,22 @@ The settings for each utility, can be switched for each `filetype`.
 Install using your favorite package manager.
 
 - [**Vundle:**](https://github.com/VundleVim/Vundle.vime)  
-  <pre>Plugin 'hongkong3/foldstaff-vim'</pre>
+  ```vim
+  Plugin 'hongkong3/foldstaff-vim'
+  ```
 - [**NeoBundle:**](https://github.com/Shougo/neobundle.vim)  
-  <pre>NeoBundle 'hongkong3/foldstaff-vim'</pre>
+  ```vim
+  NeoBundle 'hongkong3/foldstaff-vim'
+  ```
 - [**VimPlug:**](https://github.com/junegunn/vim-plug)  
-  <pre>Plug 'hongkong3/foldstaff-vim'</pre>
+  ```vim
+  Plug 'hongkong3/foldstaff-vim'</pre>
+  ```
 - [**Pathgon:**](https://github.com/tpope/vim-pathogen)  
-  <pre>cd ~/.view/bundle<br />git clone https://github.com/hongkong3/foldstaff-vim</pre>
+  ```vim
+  cd ~/.view/bundle
+  git clone https://github.com/hongkong3/foldstaff-vim
+  ```
 
 ----
 ## Usage
@@ -86,34 +94,114 @@ Place this in your *.vimrc*:
 ```vim
 let g:enable_foldstaff = 1
 ```
-This will allow you to use all the utilities.
+This will allow you to use all the utilities.  
+(also, add *foldstaff["help"]* settings)  
+
+<br />
 
 The following is an introduction of how to use and set up each of them individually.
 
-
 - - - - - - - - - - - - - - - - - - - - - - - -
 ### foldstaff-header:
-This is used as a callback function for *foldtext* from **Vim**.  
-In usage, it is more important to edit the *formatting-text*.  
-
-The text on the line with first non-symbolic character from *foldstart*, will be used as the **base-text**.  
-(This means, that lines with only symbols as separators will be ignored)  
-
-<br />
 
 **Setup:**
 ```vim
 :set foldtext=foldstaff#header()
 ```
 
-<br />
+This is used as a callback function for *foldtext* from **Vim**.  
+In usage, it is more important to edit the *formatting-text*.  
 
-> *CAUTION:*  
+<details><summary><strong>caution: not realtime update</strong></summary>
+
 When changes to the base-text, will not realtime reflected in the folded-text.  
 It will be updated by...  
- \* number of buffer-lines changed  
- \* window resized (window-columns changed)  
- \* execute `:FoldstaffOption` on current buffer  
+* number of buffer-lines changed  
+* window resized (window-columns changed)  
+* execute `:FoldstaffOption` on current buffer  
+</details>
+<br />
+
+The text on the line with first non-symbolic character from *foldstart*, will be used as the **base-text**.  
+(This means, that lines with only symbols as separators will be ignored)  
+
+<details><summary><strong>exsample: base-text</strong></summary>
+As an example, here is the case of folding with <em>fold-marker</em>.
+  
+* *before fold*  
+  ```py
+    # define _______________________________________________{{{2  #A
+    X_RANGE = 10 #(+-)x_range.
+    
+    # ______________________________________________________{{{2  #B
+    rgb_val = []
+    data_range = np.linspace(-(X_RANGE),X_RANGE,(X_RANGE*4)+1)
+  ```
+* *after folded*
+  ```py
+    # define _____________________________________________~+[ 3]  #A
+    rgb_val = []                                           +[ 6]  #B
+  ```
+In the case of **#A** the text of the foldstart line will be used as is.  
+In case **#B**, foldstart line is only a symbol and a marker, so it is ignored and the text of the next line is used.  
+
+<br />
+
+By the way, there is no need to place the marker on a separate line to avoid displaying symbols like **#B**.  
+* Removing symbols uses `:FoldstaffOption python.modify`, etc.  
+* Use other folding methods  
+
+
+etc.  Please use the way that best suits your writing style.
+</details>
+<br />
+
+
+### foldstaff-header-format
+The *formatting-text* is used for generated the *folded-text*.  
+You can set for each `filetype` and each `foldlevel`.  
+
+Specify the *formatting-text* for each `foldlevel` as a string in a LIST variable.  
+If the number of *formatting-text* is less than the `foldlevel`, the last item will be used.  
+```vim
+" I'm leaving a lot out.
+header.format = [
+  '# %t %<=%> %p%%(%l)',                    " #Lv1
+  '## %t %<-%> %p%%(%l)',                   " #Lv2
+  '%{repeat("#", %v)%} %t %<.%>%p%%(%l)',   " #Lv3, ...
+]
+```
+
+Even if there is only one *formatting-text*, as in the default, the `foldlevel` can be represented by including an expression.  
+```vim
+header.format = ['%i%t %<%>%{repeat("+", %v)%}[%L]']
+```
+
+<br />
+
+Items that can be used within the *formatting-text* include the following:
+
+| item | contents |
+| :-: | --- |
+| `%%` | a single percent sign `%` |
+| `%t` | **base-text**<br />It will also be modified by `header.modify` |
+|`%<` ... `%>`| fill the margin by repeat string, from between this|
+|`%{` ... `%}`| evalute expression between this, and replace to result|
+| `%s` , `%S` | line number of *foldstart*, and with padding |
+| `%e` , `%E` | line number of *foldend*, and with padding |
+| `%l` , `%L` | number of line in folded, and with padding |
+| `%p` <br/> `%P`|percentage of foldstart line in buffer [0 .. 100]<br />percentage of foldstart line in buffer ["&nbsp;&nbsp;0.0" .. "100.0"]|
+| `%v` | current closed foldlevel (start 1) |
+| `%V` | max foldlevel |
+| `%i` | indent of foldstart line [space] |
+| `%I` | indent-level (indent() / shiftwidth()) |
+| `%T` | line number where the **base-text** |
+| `%d` | *folddashes* ["-"] |
+| `%D` | `&diff` [0 / 1] |
+
+You can also call user-functions as evaluation expressions, so I think you can do most things.
+
+<br />
 
 - - - - - - - - - - - - - - - - - - - - - - - -
 ### foldstaff-marker:
