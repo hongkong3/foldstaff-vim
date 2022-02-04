@@ -75,7 +75,7 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
     endfor
     return r
   endfu
-  
+
   let s:_get_fnc = #{
     \   1: {a,b-> strlen(a)>b ? a[b] : 0z00ff},
     \   2: {a,b-> get(a, b, 0z00ff)},
@@ -119,7 +119,7 @@ let s:SMB = '\t -@\[-`{-~' " symbol-pattern @\v
   " ______________________________________________________________________{{{2
   fu! s:is_cmt(...) abort " ([lnum='.'])  =  comment-row?
     let l = get(a:, 1, line('.'))
-    return hlID('Comment')==synIDtrans(synID(l, indent(l)+1, 1))    
+    return hlID('Comment')==synIDtrans(synID(l, indent(l)+1, 1))
   endfu
 
   " ______________________________________________________________________{{{2
@@ -291,9 +291,9 @@ fu! {s:n}#_option(...) abort " ([{options}], [flg: 1:new 2:show])  =  {options}
     let ret = {} " make result-DICT
     for ft in keys(opt) | let ret[ft] = s:get(s:{s:n}, ft, {}) | endfor
   endif
- 
+
   if and(flg, 2)==2 | call s:show_opt(ret) | endif " show-options
-  
+
   if len(bad)>0 " too too extra care...
     execute 'echoh ToDo'
     for i in bad
@@ -311,7 +311,7 @@ endfu
 " ________________________________________________________________________{{{2
 fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
   if !exists('s:'..s:n) | call {s:n}#_option() | endif " just to sure
-  " if type(get(a:, 1, ''))==0 | let v:foldstart = a:1 | endif " for TEST 
+  " if type(get(a:, 1, ''))==0 | let v:foldstart = a:1 | endif " for TEST
   " if type(get(a:, 2, ''))==0 | let v:foldlevel = a:2 | endif
   if type(get(a:, 1, ''))==0 " for TEST
     let v:foldstart = a:1 | let ft = get(a:, 3, &ft)
@@ -357,11 +357,13 @@ fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
   let txt = '' | let i = prm.s
   while txt=='' && 0<i && prm.e>i
     let prm.T = i | let a = getline(i) | let i = nextnonblank(i+1)
-    let a = (a=~'\v^['..s:SMB..']*$') ? '' : substitute(a, pat, '', 'g')
+    " let a = (a=~'\v^['..s:SMB..']*$') ? '' : substitute(a, pat, '', 'g')
+    let a = (a=~'\v^['..s:SMB..']*$') ? '' : a " not to modify it best?
     let txt = trim(a, " \t")
   endwhile
   if txt==''
-    let txt = substitute(getline(prm.s), pat, '', 'g' )
+    " let txt = substitute(getline(prm.s), pat, '', 'g' )
+    let txt = getline(prm.s)
     let prm.T = prm.s
   endif
   if len(opt.modify) | let txt = s:replace(txt, flattennew(opt.modify)) | endif
@@ -589,7 +591,7 @@ endfu
     if s:is(fmr, 0) " regexp-pattern
       let a = split(&fmr..',', ',')[:1] | let b = map(copy(a), {_,v-> s:esc(v)})
       let fmr = [
-        \ printf('\v^.*(%s|%s)(\d*)', b[0], b[1]), a[0], 
+        \ printf('\v^.*(%s|%s)(\d*)', b[0], b[1]), a[0],
         \ '\v^\s*\zs(\#+)\ze\s+[^ \t\#\-\=]',
         \ '\v^\s*\|.{-}\|.{-}\|\s*$']
       let b:{s:n}_fold.fmr = fmr
@@ -602,7 +604,7 @@ endfu
 
     let mk = s:_mk(cl, pp) " @ マーカー判定
     if !s:is(mk, pp) | return mk | endif
-  
+
     let ni = max([0, s:_iv(cl, 1)])
     if ni!=ep[2] | let ep[1:2] = [max([0, ep[1]+ni-ep[2]]), ni] | endif
     return ep[1]>pp ? '>'..ep[1] : pp
@@ -668,7 +670,7 @@ endfu
       echoh NONE
       return -1
     endif
-    
+
     let cl = get(a:, 1, v:lnum)-0 | if cl==0 | let cl = v:lnum | endif
     let pv = '='
     for p in pat
