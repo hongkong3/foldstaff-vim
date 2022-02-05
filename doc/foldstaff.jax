@@ -46,7 +46,7 @@
 動作環境~
 Vimエディタが |+folding| 機能付きでコンパイルされている必要があります。
 以下のExコマンドか、`:version` で確認可能です。 (v8.2以降?) >
-	:echo has('folding')
+        :echo has('folding')
 
 他にも何か必要かもですが、にわかVimmerなのでわかりません... m(_ _)m
 
@@ -54,22 +54,22 @@ Vimエディタが |+folding| 機能付きでコンパイルされている必�
 本プラグインが提供する機能~
 
 + |foldstaff-header|
-    'foldtext'用。折り畳み時に表示されるテキストを生成します。
-    書式設定を追加すれば、ファイルタイプ毎(|filetype|)・折り畳みのレベル毎
-	(|foldlevel|)に異なる内容で生成されたテキストも表示可能です。
+        'foldtext'用。折り畳み時に表示されるテキストを生成します。
+        書式設定を追加すれば、ファイルタイプ毎(|filetype|)・折り畳みのレベル毎
+        (|foldlevel|)に異なる内容で生成されたテキストも表示可能です。
 
 + |foldstaff-marker|
-	折り畳み用マーカー(|fold-marker|)を右端位置揃えで設置します。
-	基本それだけです。
+        折り畳み用マーカー(|fold-marker|)を右端位置揃えで設置します。
+        基本それだけです。
 
 + |foldstaff-fold|
-   	|fold-expr|方式の折り畳みで使用する関数('foldexpr')です。 
-	複数の手法で折り畳みを行います。
+        |fold-expr|方式の折り畳みで使用する関数('foldexpr')です。 
+        複数の手法で折り畳みを行います。
 
 - |foldstaff-option|
-	本プラグインのオプション設定用の関数です。
-	一般的なプラグイン同様、グローバル関数での設定も可能ですが、
-	この関数から設定する事で変更の確認や反映が容易になります。
+        本プラグインのオプション設定用の関数です。
+        一般的なプラグイン同様、グローバル関数での設定も可能ですが、
+        この関数から設定する事で変更の確認や反映が容易になります。
 
 ------------------------------------------------------------------------------
 
@@ -77,9 +77,9 @@ Vimエディタが |+folding| 機能付きでコンパイルされている必�
 
 プラグイン名:   foldstaff-vim
 
-バージョン:  	0.82
+バージョン:     0.82
 
-ライセンス:  	MIT License.
+ライセンス:     MIT License.
 
     Copyright (c) 2022 HongKong
 
@@ -102,7 +102,7 @@ Vimエディタが |+folding| 機能付きでコンパイルされている必�
     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ~
-最新版:   	https://github.com/hongkong3/foldstaff-vim
+最新版:         https://github.com/hongkong3/foldstaff-vim
 
 ~
 Enjoy your Vim life, with Folding :)
@@ -398,7 +398,7 @@ Note: 実際に参照するオプション値はスクリプトローカル変�
 ==============================================================================
 
 ■オプション設定の内容:~
-    					                             *foldstaff-option-detail*
+                                                                     *foldstaff-option-detail*
 この項では各オプションの詳細について記載しています。
 オプション設定自体の方法については |foldstaff-option| をご覧ください。
 
@@ -465,7 +465,7 @@ header用オプション                                   *foldstaff-header-opt
 
     |substitute()| は {flags}="g" の状態で実行されます。"g"を無効化したい場合、
     {pat} の先頭に "\s" か "\o" を追加して下さい。 >
-        :FoldstaffOption vim modify.0 = ['\s\vfu%[nction]>\!?', '->']
+        :FoldstaffOption vim modify.0 = ['\s\v^fu%[nction]>\!?', '->']
 
 ------------------------------------------------------------------------------
 
@@ -535,8 +535,8 @@ foldstaff-header-format `= ['%i%t %<%>%{repeat("[", %v)%}%L]']`
 marker用オプション                                   *foldstaff-marker-option*
 ~
 *foldstaff-marker-fill*      `=   ['- ', '=','-','.']`
-    |foldstaff-marker| で右端揃えの 'foldmarker' を設置する際の、
-    右端までの余白を埋める文字列の指定です。
+    |foldstaff-marker| で右端揃えの 'foldmarker' を設置する際の、右端までの
+    余白を埋める文字列の指定です。
 
     LIST内の最初の文字列は、折り畳みレベル未指定時に使用されます。
     以降、各折り畳みレベル(<count>)指定時に使用される文字列となります。
@@ -571,16 +571,16 @@ fold用オプション                                       *foldstaff-fold-opt
         "text"      全体を区切り線で切り分けて別個に折り畳み
         "match"     設定されたマッチパターンで各行を判定
                 
-    実質2種類だけです。
+    実質2種類です。
     "match"タイプは予め|foldstaff-fold-match|が設定されてないと実行出来ません。
 
 ~
 *foldstaff-fold-keyswitch*   `=   -1`       [0/1/-1]
-    キーマップ (|zo|, |zc|, |za|) と (|zO|, |zC|, |zA|) をまとめて入れ替えます。
+    キーマップ [|zo|, |zc|, |za|] と [|zO|, |zC|, |zA|] をまとめて入れ替えます。
 
-    fold-type="text"による折り畳みの場合、見た目は1段階なのに実際は
-    多重になった折り畳みが生成されるという構造的欠陥があります。
-    複数回の開閉操作が必要だったりで面倒臭いので、その補填としての機能です。
+    fold-type="text"による折り畳みの場合、見た目は1段階なのに実際は多重に
+    なった折り畳みが生成される構造的欠陥があります。
+    繰り返し開閉操作が必要だったりで面倒臭いので、その補填としての機能です。
 
     設定値次第で前述のキーマップ入れ替えを行います。
          1          常に入れ替え
@@ -612,20 +612,25 @@ fold用オプション                                       *foldstaff-fold-opt
         {pat}*...   [{ret}, ........]
 <    {pat}が空文字('')の場合、その行との判定はマッチした扱いになります。
 
-    見ての通り普通に重い処理です...
+    普通に重い処理です...
 
 ==============================================================================
 
 ■更新履歴:~
                                                          *foldstaff-changelog*
 0.80:
-- Initial upload, but core only
+- initial upload, but core only
 - GitHub studying...
 
 0.82:
-- Write help
-- Minor bug fixes
-- ヘルプ日本語版追加、日本語ヘルプ書かれない訳が解った気がした...
+- write help
+- minor bug fixes
+- ヘルプ日本語版追加、日本語ヘルプ書かれない理由が解った気がした
+
+0.83:
+- minor fixes
+  [header]CHANGE: leave the line end Symbols in base-text
+  [marker]FIX: case where Strings contain the comment-symbols
 
 ==============================================================================
  vim:set tw=78 ft=help norl:                                  Author: HongKong

@@ -6,7 +6,7 @@
           _\____\/ /_/  /  / /_/  /__/  /  /_/ /_/  /  / /  /~
          /____/  \_____/__/\__,__/_____/\___/\__,__/__/ /__/  vim~
 
-                
+
 CONTENTS
 INTRODUCTION                      |foldstaff-introduction|
   Plugin Information                |foldstaff-information|
@@ -115,7 +115,7 @@ You don't need to use all of them.
 
 Quick Start ~
 Write the fllowing in `vimrc`, and restart Vim. >
-    let g:enable_foldstaff = 1 
+    let g:enable_foldstaff = 1
 <
 Keymap `zf` and `zF` are use to |foldstaff-marker|.
 |foldstaff-header| and |foldstaff-fold| are automatically used.
@@ -186,7 +186,7 @@ There is unlimit on number of characters, so you can do something like this. >
 This function is designed to be used setting to |key-mapping|.
 At runtime, it works as follows:
 
-- When executed in Normal-Mode, |fold-marker| will be placed by 
+- When executed in Normal-Mode, |fold-marker| will be placed by
   the behind of cursor line.
   - if fold-marker already been placed, then remove it.
   - Two key-mappings are provided, for the Start and End.
@@ -212,7 +212,7 @@ Setup:~
 
         This is exsamples of |key-mapping|.
         Feel free to set the actual keys on your like.
- 
+
 ------------------------------------------------------------------------------
 
 foldstaff-fold                                                *foldstaff-fold*
@@ -229,7 +229,7 @@ This has several fold-types, as follows:
 
     - type: code~
       This is for Coding or Script buffers.
-      This is similar to |fold-indent|, but folding into the 
+      This is similar to |fold-indent|, but folding into the
       previous parent-level row. (like as VS-Code)
 
       The number of lines to be folded can be adjusted with |foldminlines|.
@@ -238,12 +238,12 @@ This has several fold-types, as follows:
         + |fold-marker| by Vim                `{{{`,`}}}` :'foldmarker'
           However, |fold-marker| with fold-level are prone to problems...
         + markdown header format symbol     `###` :line-top
-        + String of `#region` and `#endregion` 
+        + String of `#region` and `#endregion`
 
     - type: text~
       This is mainly for Vim-help.
 
-      Separate buffers with the following factors, 
+      Separate buffers with the following factors,
       and fold one each separately.
         1. A row with only the letters `=`, `#`, or `/`
         2. A row with only the letters `-`, `+`, or `*`
@@ -251,7 +251,7 @@ This has several fold-types, as follows:
 
       As a result, when closing all foldings
       will looks like a CONTENTS or an OUTLINE.
-      
+
     - type: match~
       Perform folding according to match-pattern, in the option settings.
       This may be easier than preparing a new function for |folding|...
@@ -261,11 +261,11 @@ This has several fold-types, as follows:
 Setup:~
     :set |foldmethod|=expr |foldexpr|=foldstaff#fold()
 
-        This complates the set up to a point. 
+        This complates the set up to a point.
         But it is often overridden by |modeline|, |ftplugin|, or |autocmd|...
 
-        In such cases, plearse execute bellow Command, or re-override 
-        with |autocmd|, etc. individually. 
+        In such cases, plearse execute bellow Command, or re-override
+        with |autocmd|, etc. individually.
 
                                                               *:FoldstaffFold*
 Command:~
@@ -299,7 +299,7 @@ There are 3ways to set the option value:
 1. Set `g:foldstaff` in |vimrc|, and have it readed when Vim start.
 2. Set `g:foldstaff` and call |foldstaff#option()|.
 3. Specify the set option-values as an argument of |foldstaff#option()|
-   and execute it. 
+   and execute it.
 
 The 2. & 3. methods are to editing the options as you check them.
 
@@ -323,7 +323,7 @@ Function:~
          0      Overrides existing settings
          1      Initialize the settings and then update them
         +2      Displays the current setting values
-                Note: Display in `:echom`, use `:message` to can check it later. 
+                Note: Display in `:echom`, use `:message` to can check it later.
 
         To the setting values check only, use following. >
             call foldstaff#option(0, 2)
@@ -335,7 +335,7 @@ Command:~
          This is ex-command version.
          When executed without arguments, display current option values,
          and Yank options-variable to register `"h`.
-         
+
          When setting option, specify {filetype} and {method} can omitted,
          but set by only a Attribute at once.
 >
@@ -403,7 +403,7 @@ For on how to Set-Options, please refer to |foldstaff-option|.
 
 option-filetype                                    *foldstaff-option-filetype*
 
-    `_`               This is base-filetype. For values for which there is 
+    `_`               This is base-filetype. For values for which there is
                     no-|filetpye| setting, the values for this will be applied.
 
     `vim`, `help`,.etc  Any |filetypes| you added.
@@ -422,7 +422,7 @@ header-options                                       *foldstaff-header-option*
 ~
 *foldstaff-header-width*     `=   '+0'`
     Number of |foldstaff-header|(folded-text, closed-|foldtext|) characters.
-    
+
     Usually, will fill in margin or omit base-text to match is
     this number of characters.
     However, if |winwidth| is small, it will be adjusted accodingly.
@@ -435,7 +435,7 @@ header-options                                       *foldstaff-header-option*
     However, when the Number less than `12`, or the String and 'textwidth'==0,
     the default value of `78` in Vim is applied.
 
-    Note: if you want to always fill the window to edge, a set such as 999999.  
+    Note: if you want to always fill the window to edge, a set such as 999999.
 
 ~
 *foldstaff-header-min*       `=   8`
@@ -477,18 +477,18 @@ foldstaff-header-format `= ['%i%t %<%>%{repeat("[", %v)%}%L]']`
     Specifies the corresponding format-text for each |foldlevel|.
     if less than |foldlevel| is specified, the last item will be used.
 
-    Those format-text consists of |printf()| style "%" items interspersed with 
-    normal text. |foldtext| is generated by replacing the "%item" part with 
+    Those format-text consists of |printf()| style "%" items interspersed with
+    normal text. |foldtext| is generated by replacing the "%item" part with
     the corresponding content.
     A single percent sign can be given as "%%".
 
     Note: Numerical include is not supported such as "%04e".
 
-    The correspondence between character specified by "%item" and 
-    replacement contents is as fllows:                
+    The correspondence between character specified by "%item" and
+    replacement contents is as fllows:
 
     item        contents ~
-    *%t*          base-text. The base-text of the line containing the first 
+    *%t*          base-text. The base-text of the line containing the first
                 non-symbolic character from foldstart.
                 Pre-replacement by |foldstaff-header-modify| will be performed.
 
@@ -551,12 +551,12 @@ marker-options                                       *foldstaff-marker-option*
     This specifies the right-aligned position of the |foldstaff-marker|.
 
     The usage and settings are almost same as the |foldstaff-header-width|.
-    However, when the number 0, if refers to the vlue |foldstaff-header-width|. 
-    
+    However, when the number 0, if refers to the vlue |foldstaff-header-width|.
+
     "+0" "-6" "+2"              String, relative from 'textwidth'
     36 64 78 100                Number, numeric of characters it number
     0                           Number 0, refer to |foldstaff-header-width|
-  
+
 ------------------------------------------------------------------------------
 
 fold-options                                           *foldstaff-fold-option*
@@ -577,7 +577,7 @@ fold-options                                           *foldstaff-fold-option*
 ~
 *foldstaff-fold-keyswitch*   `=   -1`       [0/1/-1]
     Switches Keymap |zo|, |zc| ,and |za| to |zO|, |zC|, and |zA|. (fold open/close/toggle)
-    
+
     When Folding with type="text" as described above, the folds will overlap.
     This means need to open/close the folding many times...
 
@@ -602,7 +602,7 @@ fold-options                                           *foldstaff-fold-option*
 
     If there is more than one {pat}, it will inspect the lines around
     the current line for matches.
-    
+
     It will match each row as follows:     `lnum = current-line` >
         {pat}*1     [{ret}, {lnum}]
         {pat}*2     [{ret}, {lnum-1}, {lnum}]
@@ -619,13 +619,18 @@ fold-options                                           *foldstaff-fold-option*
 CHANGELOG                                                *foldstaff-changelog*
 
 0.80:
-- Initial upload, code only
+- initial upload, code only
 - GitHub studying...
 
 0.82:
-- Write help
-- Minor bug fixes
+- write help
+- minor bug fixes
 - Japanese version help added.
+
+0.83:
+- minor fixes
+  [header]CHANGE: leave the line end Symbols in base-text
+  [marker]FIX: case where Strings contain the comment-symbols
 
 ==============================================================================
  vim:set tw=78 ft=help norl:                                  Author: HongKong

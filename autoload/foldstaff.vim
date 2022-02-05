@@ -1,10 +1,11 @@
 scriptencoding utf-8
 " ========================================================================{{{1
 " Plugin:     foldstaff
-" LasCahnge:  2022/02/02  v0.82
+" LasCahnge:  2022/02/05  v0.83
 " License:    MIT license
 " Filenames:  %/../../plugin/foldstaff.vim
 "             foldstaff.vim
+" ________________________________________________________________________{{{2
 " ========================================================================}}}1
 
 let s:t_cpo = &cpo | set cpo&vim
@@ -23,6 +24,8 @@ let s:{s:n}_default.header.ellipsis = '~'
 let s:{s:n}_default.marker = {}
 let s:{s:n}_default.marker.fill = ['- ', '=', '_', '.']
 let s:{s:n}_default.marker.width = 0
+" forced placing to 'readonly' and 'nomodifiable'
+" let s:{s:n}_default.marker.bang = 0
 
 let s:{s:n}_default.fold = {}
 let s:{s:n}_default.fold.type = 'auto'
@@ -430,26 +433,43 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])  @keymaps
   let mw = !s:is(opt.width, 0) ? opt.width : s:get(s:{s:n}, &ft..'.header.width', s:get(s:{s:n}, '_.header.width'))
   let mw = (type(mw)==0 && mw>3) ? mw : (&tw>0 ? (&tw + (matchstr(''..mw, '\v\-?\d+')-0)) : 78)
   let fc = len(opt.fill)>0 ? opt.fill[min([lv, len(opt.fill)-1])] : ''
+  let chl = hlID('Comment')
 
   let pat = s:esc(join(map(copy(opt.fill), {_,v-> substitute(v, ' ', '', 'g')}), ''))
   let a = map(extend(copy(cms), copy(fmr)), {_,v-> s:esc(v)}) " match-pattern
   let pat = [
     \   printf('\v\C\s*%s%%([ \t%s]*%%(%s|%s)\d*)+\s*%s\s*$', a[0], pat, a[2], a[3], a[1]),
     \   printf('\v\C^(.{-}%s.{-})([ \t%s]{-}%%(%s|%s)\d*\s*)+(.{-}%s.{-})$', a[0], pat, a[2], a[3], a[1]),
+    \   printf('\v^(.*\S)\s*(\S*%s.{-})$', a[1]),
     \   printf('\v\C^(.*%s.*)\s*(%s.{-})$', a[0], a[1]),
-    \ ]
+    \ ] " .3 no used
 
   " ......................................................................{{{3
   fu! s:_insmrk(...) closure " (lnum, flg)
     let f = get(a:, 2)!=0 | let s = getline(a:1)
     let al = f ? prevnonblank(a:1) : nextnonblank(a:1)
-
-    if al!=a:1 " blank
-      let row = [printf('%s%s', (abs(al-a:1)==1 ? repeat(' ', indent(al)) : ''), cms[0]), cms[1]]
-    elseif s=~pat[2] " comment
-      let row = matchlist(s, pat[2])[1:]
-    else " normal
-      let row = [substitute(s, '\v\s*$', ' '..cms[0], ''), cms[1]]
+    " @OLD - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
+    " if al!=a:1 " blank
+    "   let row = [printf('%s%s', (abs(al-a:1)==1 ? repeat(' ', indent(al)) : ''), cms[0]), cms[1]]
+    " elseif s=~pat[2] " comment
+    "   let row = matchlist(s, pat[2])[1:]
+    " else " normal
+    "   let row = [substitute(s, '\v\s*$', ' '..cms[0], ''), cms[1]]
+    " endif " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+    if al!=a:1 " blank-line
+      let row = [printf('%s%s', (abs(al-a:1)==1 ? repeat(" ", indent(al)) : ''), cms[0]), cms[1]]
+    else " comment is check by syntax ...parsing be too pain X(
+      let [c, lc] = [col([a:1, '$']), -1]
+      while c>0
+        if chl==synIDtrans(synID(a:1, c, 1)) && (lc<0 || lc>c) | let lc = c | endif
+        let c-= 1
+      endwhile
+      if lc>0 && match(s, pat[2], lc)>=0 " has comments
+        let row = matchlist(strpart(s, lc), pat[2])[1:]
+        let row[0] = strpart(s, 0, lc)..row[0]
+      else " no comment
+        let row = [substitute(s, '\v\s*$', ' '..cms[0], ''), cms[1]]
+      endif
     endif
 
     let mrk = fmr[f]..(lv>0 ? lv : '') " string-fill
@@ -464,8 +484,10 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])  @keymaps
   endfu
   " ......................................................................}}}3
 
+  let frm = [&ro, &ma] | if get(opt, 'bang') | let [&ro, &ma] = [0, 1] | endif
+
   let ff = reduce(map(range(4), {i-> stridx(getline(ml[i/2]), fmr[i%2])>=0}), {a,b-> a+b})>0
-  if ff | for l in range(ml[0], ml[1]) " remove the marker
+  if ff | for l in range(ml[0], ml[1]) " remove marker
     call setline(l, s:replace(getline(l), pat[0], '', pat[1], '\1\3'))
   endfor | endif
 
@@ -473,9 +495,9 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])  @keymaps
     call setline(ml[0], s:_insmrk(ml[0], (flg && ml[0]==ml[1])))
     if ml[0]!=ml[1] | call setline(ml[1], s:_insmrk(ml[1], 1)) | endif
   endif
+  if get(opt, 'bang') | let [&ro, &ma] = frm | endif
 
-  " FL flg lv fc ml mw cms fmr "\n" opt "\n" pat
-  call execute("normal! \<C-\>\<C-n>") " -> Normal (end Visual-Mode)
+  call execute("normal! \<C-\>\<C-n>") " -> Normal (exit Visual-Mode)
 endfu
 
 
