@@ -48,14 +48,6 @@ The settings for each utility, can be switched for each `filetype`.
   Although it is possible to set global-variable`g:` as in general plugins, this function allows you to check and reflect the values immediately.  
 
 <br />
-<dl><dt>Vim9 script</dt>
-<dd>
-
-If it is executable, run it with the *Vim9 script* version.  
-If you don't want to use the *Vim9 script* version, write `let g:foldstaff_disable_vim9 = 1` in **vimrc**.
-
-</dd>
-</dl>
 
 ----
 ## Screenshot
