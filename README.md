@@ -5,7 +5,7 @@
 
 [![REQUIRE: Vim 8.2-later?](https://img.shields.io/static/v1?label=plugin&message=8.2%2B&color=2a2&logo=vim)](https://www.vim.org "REQUIRE: Vim 8.2 later")&nbsp;
 [![MIT License](https://img.shields.io/static/v1?label=license&message=MIT&color=28c)](LICENSE "MIT License")&nbsp;
- [![plugin version 0.83](https://img.shields.io/static/v1?label=version&message=0.83&color=e62)](https://github.com/hongkong3/foldstaff-vim/ "plugin version 0.83")&nbsp;
+[![plugin version 1.02](https://img.shields.io/static/v1?label=version&message=1.02&color=e62)](https://github.com/hongkong3/foldstaff-vim/ "plugin version 1.02")&nbsp;
 🍔🍙
 
 > *This document has been prepared baded on automatic translation.  
@@ -17,7 +17,7 @@ This plugin is utilities for *Folding* at **Vim editor**.
 The settings for each utility, can be switched for each `filetype`.  
 
 
-### [foldstaff-vim][ghp] provides the bellow utilities: 
+### [foldstaff-vim][ghp] provides the bellow utilities:  
 
 * [**foldstaff-header**](#user-content-foldstaff-header)  
   For *foldtext*.  Generates the display Text of closed Folding.  
@@ -42,10 +42,20 @@ The settings for each utility, can be switched for each `filetype`.
     The result looks like **an outline** or **table of contents**.  
   - *type = "match"*  
     Judges and folds each line using a pre-defined matching-patterns.
-    
+
 * [**foldstaff-option**](#user-content-foldstaff-option)  
   This is a function for **option setting**, for above utilities.  
   Although it is possible to set global-variable`g:` as in general plugins, this function allows you to check and reflect the values immediately.  
+
+<br />
+<dl><dt>Vim9 script</dt>
+<dd>
+
+If it is executable, run it with the *Vim9 script* version.  
+If you don't want to use the *Vim9 script* version, write `let g:foldstaff_disable_vim9 = 1` in **vimrc**.
+
+</dd>
+</dl>
 
 ----
 ## Screenshot
@@ -55,7 +65,7 @@ The settings for each utility, can be switched for each `filetype`.
 
 > Modify:  
 ![c2](https://user-images.githubusercontent.com/97036597/152065366-4261e10e-9764-4d05-8713-5182a1a20ce9.png)
-  
+
 > Funcky:  
 ![c3](https://user-images.githubusercontent.com/97036597/152065375-d1651cf1-7c46-4f8b-8bb6-6a091001c038.png)
 
@@ -85,6 +95,7 @@ Install using your favorite package manager.
   ```
 
 ----
+
 ## Usage
 For more information on how to use it, please see the help in Vim.  
 `:h foldstaff`  
@@ -99,9 +110,24 @@ This will allow you to use all the utilities.
 
 <br />
 
-The following is an introduction of how to use and set up each of them individually.
+The following is an introduction of how to use and set up each of them individually.  
+
+<br />
+
+### [Vim9-version]
+If you write the following in **vimrc**, it will run in the *Vim9-script* version.  
+```vim
+let g:foldstaff_enable_vim9 = 1
+```
+
+<br />
+
+**Note:** *Some functions may not work due to changes in **Vim9-script** specifications.*  
+*(Confirmed to work: gVim 8.2.4324)*
+
 
 - - - - - - - - - - - - - - - - - - - - - - - -
+
 ### foldstaff-header:
 
 **Setup:**
@@ -119,25 +145,28 @@ It will be updated by...
 * number of buffer-lines changed  
 * window resized (window-columns changed)  
 * execute `:FoldstaffOption` on current buffer  
+
 </details>
+
 <br />
 
 The text on the line with first non-symbolic character from *foldstart*, will be used as the **base-text**.  
 (This means, that lines with only symbols as separators will be ignored)  
 
-<details><summary><strong>exsample: base-text</strong></summary>
+<details><summary><strong>about: base-text</strong></summary>
+
 As an example, here is the case of folding with <em>fold-marker</em>.
-  
+
 * *before fold*  
   ```py
     # define _______________________________________________{{{2  #A
     X_RANGE = 10 #(+-)x_range.
-    
+
     # ______________________________________________________{{{2  #B
     rgb_val = []
     data_range = np.linspace(-(X_RANGE),X_RANGE,(X_RANGE*4)+1)
   ```
-* *after folded*
+* *after folded*  
   ```py
     # define _____________________________________________~+[ 3]  #A
     rgb_val = []                                           +[ 6]  #B
@@ -153,7 +182,9 @@ By the way, there is no need to place the marker on a separate line to avoid dis
 
 
 etc.  Please use the way that best suits your writing style.
+
 </details>
+
 <br />
 
 
@@ -179,7 +210,7 @@ header.format = ['%i%t %<%>%{repeat("+", %v)%}[%L]']
 
 <br />
 
-Items that can be used within the *formatting-text* include the following:
+Items that can be used within the *formatting-text* include the following:  
 
 | item | contents |
 | :-: | --- |
@@ -204,6 +235,7 @@ You can also call user-functions as evaluation expressions, so I think you can d
 <br />
 
 - - - - - - - - - - - - - - - - - - - - - - - -
+
 ### foldstaff-marker:
 This is set the *fold-marker*. This function is designed to be used setting to *key-mapping*.
 
@@ -217,7 +249,7 @@ Two *key-mappings* are provided, for the `{{{`**start-marker**  and  `}}}`**end-
 
 <br />
 
-At runtime, it works as follows:
+At runtime, it works as follows:  
 - When executed in Normal-Mode, *fold-marker* will be placed by the behind of cursor line.  
   - if *fold-marker* already been placed, then remove it.  
 ```vim
@@ -248,13 +280,14 @@ There is unlimit characters, so you can do something like this.
 [^fmr]: for example, an input like "1zf" or "2zF".
 
 - - - - - - - - - - - - - - - - - - - - - - - -
+
 ### foldstaff-fold:
 This function is for *foldexpr*.   
 This function performs folding according to the contents of the buffers.  
 
 <br />
 
-**Setup:**
+**Setup:**  
 ```vim
 :set foldmethod=expr foldexpr=foldstaff#fold()
 ```
@@ -264,11 +297,12 @@ It may be more constructive to execute the following **Ex-Command** as needed.
 
 <br />
 
-**Command:**
+**Command:**  
 ```vim
 :FoldstaffFold
 :FoldstaffFold {type}
 ```
+
 {type} cna be **code**, **text**, **match**, or **auto**.  
 If {type} is omitted, then **auto** will be used.  
 When **auto** is used, it will switch to **code** or **text** depending on the buffer contents.  
@@ -276,13 +310,14 @@ When **auto** is used, it will switch to **code** or **text** depending on the b
 If **match** is specified, it cannot be executed unless `:FoldstaffOption fold.match = [...]` is set beforehand.  
 
 - - - - - - - - - - - - - - - - - - - - - - - -
+
 ### foldstaff-option:
 This is a dedicated function for setting options for this plugin.  
 A function version is also available, but I think it is easier to use the command.  
 
 <br />
 
-**Command:**
+**Command:**  
 ```vim
 :FoldstaffOption
 :FoldstaffOption {filetype}.{method}.{key} = {value}
@@ -302,11 +337,12 @@ After execution, it will display the changed *option-vriable*, and update [folds
 It also acquires the changed *option-variable* in register `h` as a string. (type `"hp` to paste it)  
 
 - - - - - - - - - - - - - - - - - - - - - - - -
-## Option
+
+## Option  
 The option values in this plugin are managed by a DICT variable.  
 The contents of this variable are as follows:  
 ```vim
-    " @line-continuation "\" omitted.
+    " #line-continuation '\' omitted.
     [g:]foldstaff = {
         "_" = #{                            " filetype [basic]
             header = #{                     " @ foldstaff-header
@@ -340,11 +376,14 @@ The contents of this variable are as follows:
         }, ...
     }
 ```
-See `:h foldstaff-option-detail` for details of each setting value.
+
+<br />
+
+See `:h foldstaff-option-detail` for details of each setting value.  
 
 ----
 
-*This is no relationship with any real person, organization, or name.*
+*This "foldstaff" is no relationship with any real person, organization, or name.*  
 
 
 [ghp]: https://github.com/hongkong3/foldstaff-vim/

@@ -1,19 +1,21 @@
 scriptencoding utf-8
 " ========================================================================{{{1
 " Plugin:     foldstaff
-" LastChange: 2022/02/02  v0.82
+" LastChange: 2022/02/11  v1.02
 " License:    MIT license
 " Filenames:  foldstaff.vim
 "             %/../../autoload/foldstaff.vim
+"             %/../../autoload/foldstaff9.vim
 " ========================================================================}}}1
 
 let s:n = expand('<sfile>:t:r')
 
-if get(g:, 'loaded_'..s:n)>=0.082 || !has('folding')
+if get(g:, 'loaded_'..s:n)>=0.1 || !has('folding')
   finish
 endif
-let g:loaded_{s:n} = 0.082
+let g:loaded_{s:n} = 0.1
 let s:t_cpo = &cpo | set cpo&vim
+let s:v9 = exists(':vim9') && (get(g:, s:n..'_enable_vim9')>=1)
 
 
 " Example of Use: --------------------------------------------------------{{{2
@@ -73,19 +75,19 @@ let s:t_cpo = &cpo | set cpo&vim
 
 " FUNCTION: =============================================================={{{1
 fu! {s:n}#option(...)
-  return function(s:n..'#_option', a:000)()
+  return function(s:n..(s:v9 ? '9#Option' : '#_option'), a:000)()
 endfu
 
 fu! {s:n}#header(...)
-  return function(s:n..'#_header', a:000)()
+  return function(s:n..(s:v9 ? '9#Header' :'#_header'), a:000)()
 endfu
 
 fu! {s:n}#fold(...)
-  return function(s:n..'#_fold', a:000)()
+  return function(s:n..(s:v9 ? '9#Fold' : '#_fold'), a:000)()
 endfu
 
 fu! {s:n}#marker(...)
-  return function(s:n..'#_marker', a:000)()
+  return function(s:n..(s:v9 ? '9#Marker' : '#_marker'), a:000)()
 endfu
 
 fu! {s:n}#refresh() abort
@@ -100,7 +102,7 @@ fu! s:_msg(...) abort " ('msg', ['highlight']) -> color-message
     if m[i]=~'\n' | m[i] = split(m[i], '\v\s*\n\s*') |  endif
   endfor
   let m = flatten(m)
-  
+
   if c!='' | call execute('echoh '..c) | endif
   for i in m
     execute printf('echom ''%s''', substitute(i, "'", "''", 'g'))
@@ -177,10 +179,15 @@ com! -complete=filetype -nargs=* FoldstaffOption call <SID>_option_cmd(<q-args>)
 com! -nargs=* FoldstaffRefresh call {s:n}#option()
 
 " KEY-MAP: ==============================================================={{{1
-noremap <silent><nowait> <Plug>(foldstaff-marker) <Cmd>call foldstaff#_marker(0)<CR>
-noremap <silent><nowait> <Plug>(foldstaff-endmarker) <Cmd>call foldstaff#_marker(1)<CR>
+if s:v9
+  noremap <silent><nowait> <Plug>(foldstaff-marker) <Cmd>call foldstaff9#Marker(0)<CR>
+  noremap <silent><nowait> <Plug>(foldstaff-endmarker) <Cmd>call foldstaff9#Marker(1)<CR>
+else
+  noremap <silent><nowait> <Plug>(foldstaff-marker) <Cmd>call foldstaff#_marker(0)<CR>
+  noremap <silent><nowait> <Plug>(foldstaff-endmarker) <Cmd>call foldstaff#_marker(1)<CR>
+endif
 
 " ========================================================================}}}1
 
-let &cpo = s:t_cpo | unlet s:t_cpo
+let &cpo = s:t_cpo | unlet! s:t_cpo
 " vim:set ft=vim fenc=utf-8 norl:                             Author: HongKong

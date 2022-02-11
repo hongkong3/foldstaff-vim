@@ -1,10 +1,11 @@
 scriptencoding utf-8
 " ========================================================================{{{1
 " Plugin:     foldstaff
-" LasCahnge:  2022/02/05  v0.83
+" LasCahnge:  2022/02/09  v1.00
 " License:    MIT license
 " Filenames:  %/../../plugin/foldstaff.vim
 "             foldstaff.vim
+"             foldstaff9.vim
 " ________________________________________________________________________{{{2
 " ========================================================================}}}1
 
@@ -215,10 +216,10 @@ fu! s:show_opt(...) abort " ({options})
   for m in msg
     if m=~'\v^(%x01|%x02)'
       execute 'echoh '..(m[0]=="\x01" ? 'Comment': 'Statement')
-      execute printf('echom ''%s''', substitute(m[1:], '''', '''''', 'g'))
+      execute printf('echo ''%s''', substitute(m[1:], '''', '''''', 'g'))
       execute 'echoh None'
     else
-      execute printf('echom ''%s''', substitute(m, '''', '''''', 'g'))
+      execute printf('echo ''%s''', substitute(m, '''', '''''', 'g'))
     endif
   endfor
 endfu
@@ -300,7 +301,7 @@ fu! {s:n}#_option(...) abort " ([{options}], [flg: 1:new 2:show])  =  {options}
   if len(bad)>0 " too too extra care...
     execute 'echoh ToDo'
     for i in bad
-      execute printf('echom "%s: invalid option-key ignored.  >>  %s"', s:n, i)
+      execute printf('echo "%s: invalid option-key ignored.  >>  %s"', s:n, i)
     endfor
     execute 'echoh None'
   endif
@@ -312,6 +313,7 @@ endfu
 
 
 " ________________________________________________________________________{{{2
+
 fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
   if !exists('s:'..s:n) | call {s:n}#_option() | endif " just to sure
   " if type(get(a:, 1, ''))==0 | let v:foldstart = a:1 | endif " for TEST
@@ -381,7 +383,7 @@ fu! {s:n}#_header(...) abort " ([lnum], [lv])  @foldtext()
   " ......................................................................}}}
 
   let fmt = substitute(fmt, '\v\%\%', "\x06", 'g') " formating-header
-  let fmt = substitute(fmt, printf('\v\C\%%([%s])', join(keys(prm))), {v-> prm[v[1]]}, 'g')
+  let fmt = substitute(fmt, printf('\v\C\%%([%s])', join(keys(prm), '')), {v-> prm[v[1]]}, 'g')
   let a = '' | while a!=fmt | let a = fmt
     let fmt = substitute(fmt, '\v\%\{(.{-})\%\}', funcref('s:_header_expr'), 'g')
   endwhile
@@ -432,7 +434,7 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])  @keymaps
   for [k, v] in items(opt) | let opt[k] = s:get(s:{s:n}, printf('%s.marker.%s', &ft, k), v) | endfor
   let mw = !s:is(opt.width, 0) ? opt.width : s:get(s:{s:n}, &ft..'.header.width', s:get(s:{s:n}, '_.header.width'))
   let mw = (type(mw)==0 && mw>3) ? mw : (&tw>0 ? (&tw + (matchstr(''..mw, '\v\-?\d+')-0)) : 78)
-  let fc = len(opt.fill)>0 ? opt.fill[min([lv, len(opt.fill)-1])] : ''
+  let fc = len(opt.fill)>0 ? opt.fill[min([lv, len(opt.fill)-1])] : ' '
   let chl = hlID('Comment')
 
   let pat = s:esc(join(map(copy(opt.fill), {_,v-> substitute(v, ' ', '', 'g')}), ''))
@@ -444,8 +446,8 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])  @keymaps
     \   printf('\v\C^(.*%s.*)\s*(%s.{-})$', a[0], a[1]),
     \ ] " .3 no used
 
-  " ......................................................................{{{3
-  fu! s:_insmrk(...) closure " (lnum, flg)
+
+  fu! s:_insmrk(...) closure " (lnum, flg) ...............................{{{3
     let f = get(a:, 2)!=0 | let s = getline(a:1)
     let al = f ? prevnonblank(a:1) : nextnonblank(a:1)
     " @OLD - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -{{{
@@ -481,8 +483,8 @@ fu! {s:n}#_marker(...) abort " ([flg: 0:{ 1:}], [lv=v:count])  @keymaps
     endwhile
 
     return row[0]..repeat(' ', len-strwidth(ff))..ff..mrk..row[1]
-  endfu
-  " ......................................................................}}}3
+  endfu " ................................................................}}}3
+
 
   let frm = [&ro, &ma] | if get(opt, 'bang') | let [&ro, &ma] = [0, 1] | endif
 
@@ -512,19 +514,19 @@ fu! {s:n}#_fold(...) abort " (['type'/lnum])  @fold_expr
     let a = line('$') | let l = extend(range(a/2+1, a), range(1, a/2))
     let [a, b, c] = [0, 0, [10, 0]] | let j = 0
     for i in l
-      if max(c)>100 | break | elseif i<j | continue | endif
+      if max(c)>200 | break | elseif i<j | continue | endif
       let j = nextnonblank(i)
       if j>i | if j>(i+1) | let c[1]+= 2 | endif | continue | endif
 
       let a = indent(i)/shiftwidth()
-      if abs(a-b)==1 | let c[0]+= 4 | endif
+      if abs(a-b)==1 | let c[0]+= 3 | endif
       let b = a
 
       let s = getline(i)
       if s!~'\v[!-+:-?\[-`{-~]'
         let c[1]+= strwidth(s)/8
       elseif s=~'\v^\s*[\}\]]|[\{\[\)\;]\s*$|^\s*(\#{2,})\s+\S'
-        let c[0]+= 4
+        let c[0]+= 2
       elseif s=~'\v^\s*([\#\=\-\*\+])(\s*\1){7,}\s*$'
         let c[1]+= 20
       endif
@@ -546,6 +548,7 @@ fu! {s:n}#_fold(...) abort " (['type'/lnum])  @fold_expr
     let type = a!='' ? a : s:get(s:{s:n}, &ft..'.fold.type', s:get(s:{s:n}, '_.fold.type', 'auto'))
     if type=='auto' | let type = s:_check() | endif
     if exists('b:'..s:n..'_fold.switched') | unlet! b:{s:n}_fold.switched | endif
+    unlet! b:{s:n}_fold.expr
     let b:{s:n}_fold.type = type " v re-folding
     if a!='' | let &l:fdm = 'expr' | let &l:fde = 'foldstaff#fold()' | return 1 | endif
   endif
@@ -593,15 +596,14 @@ endfu
       let a = get(a:, 2)-0
       return indent(a<0 ? prevnonblank(a:1-1) : nextnonblank(a:1+(a>0 ? 1 : 0)))/shiftwidth()
     endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
-
-    fu! s:_rv(...) " (lnum) = resume foldLv?
+    fu! s:_rv(...) " (lnum) = resume foldLv? - - - - - - - - - - - - - - - {{{
       let mk = s:_mk(a:1-1, s:_fv(a:1-2)) " # check end-marker
       if mk=~'\v\<\d+' | return mk[1:]-1 | endif
       let pf = s:_fv(a:1, -1)
       let pi = s:_iv(a:1, -1)-s:_iv(nextnonblank(a:1))
       return pi>0 ? max([0, pf-pi]) : pf
-    endfu
-    " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }}}4
+    endfu " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}}}
+
 
     let cl = get(a:, 1, v:lnum)-0 | if cl==0 | let cl = v:lnum | endif
     let ep = get(b:{s:n}_fold, 'expr', [0])
@@ -687,10 +689,12 @@ endfu
   fu! s:fold_match(...) abort " ([lnum])  =  fold-expr result
     let pat = s:get(s:{s:n}, &ft..'.fold.match', s:get(s:{s:n}, '_.fold.match', []))
     if len(pat)<1
-      echoh Todo
-      execute printf('echom "%s#fold(\"match\"): No have match pattern..."', s:n)
-      echoh NONE
-      return -1
+      if !s:is(s:get(b:, 'foldstaff_fold.expr'), 'Q')
+        echoh Todo
+        execute printf('echom "%s#fold(\"match\"): No have match pattern..."', s:n)
+        echoh NONE
+      endif
+      let b:foldstaff_fold.expr = 'Q' | return -1
     endif
 
     let cl = get(a:, 1, v:lnum)-0 | if cl==0 | let cl = v:lnum | endif

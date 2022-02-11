@@ -1,4 +1,4 @@
-*foldstaff.txt*            For Vim version 8.2.       Last change: 2022 Feb 02
+*foldstaff.txt*            For Vim version 8.2.       Last change: 2022 Feb 09
               ____________________________________________________~
              /    _______________________________________________/~
             /    ________//  /__ /  /  ___/  /____ ___/  __/  __/~
@@ -12,6 +12,7 @@ INTRODUCTION                      |foldstaff-introduction|
   Plugin Information                |foldstaff-information|
 
 USAGE                             |foldstaff-usage|
+  [Vim9 version]                    |foldstaff-vim9|
   foldstaff-header                  |foldstaff-header|
   foldstaff-marker                  |foldstaff-marker|
   foldstaff-fold                    |foldstaff-fold|
@@ -73,7 +74,7 @@ Plugin Information                                     *foldstaff-information*
 
 Plugin:   foldstaff-vim
 
-Version:  0.82
+Version:  1.00
 
 License:  MIT License.
 
@@ -125,6 +126,17 @@ If you have problem, please edit relevant sections.
 `(in /plugin/foldstaff.vim)`
 
 ------------------------------------------------------------------------------
+[Vim9 version]                                                *foldstaff-vim9*
+
+If you put the following in vimrc: >
+    let g:foldstaff_enable_vim9 = 1
+
+Run each function in the |Vim9-script| version, if possible.
+
+Note: that this may not work due to changes in |Vim9-script| verion.
+      (Confirmed to work: gVim 8.2.4324)
+
+------------------------------------------------------------------------------
 
 foldstaff-header                                            *foldstaff-header*
 
@@ -152,7 +164,7 @@ Setup: ~
 
                                                             *:FoldstaffHeader*
 Command: ~
-    :FoldstaffHeader {foldlevel}, {"filetype"}
+    :FoldstaffHeader {foldlevel} {"filetype"}
 
         Display the test-generated folded-text of current(cursor) line.
 
@@ -323,7 +335,6 @@ Function:~
          0      Overrides existing settings
          1      Initialize the settings and then update them
         +2      Displays the current setting values
-                Note: Display in `:echom`, use `:message` to can check it later.
 
         To the setting values check only, use following. >
             call foldstaff#option(0, 2)
@@ -356,6 +367,8 @@ Option-Variable:~
                                *foldstaff-variable*  *foldstaff-option-variable*
 The |filetype| `'_'` is basic-filetype.
 If there is no setting specific to |filetype|, this types value will be applied. >
+
+    g:foldstaff_disable_vim9 = 0            " if 1 to disable Vim9 version 
 
     [g:]foldstaff = {
         "_" = #{                            " filetype [basic]
@@ -631,6 +644,15 @@ CHANGELOG                                                *foldstaff-changelog*
 - minor fixes
   [header]CHANGE: leave the line end Symbols in base-text
   [marker]FIX: case where Strings contain the comment-symbols
+
+1.00:
+- Vim9-script version included
+- [option]CHANGE: cahnged the options display method from echomsg to echo
+- minor bug fixes
+
+1.02:
+- [Vim9]Fiexd all function names in Vim9-script
+  Can't use lowercase name function in Vim9-script...
 
 ==============================================================================
  vim:set tw=78 ft=help norl:                                  Author: HongKong
